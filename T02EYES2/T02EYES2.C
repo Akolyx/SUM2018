@@ -54,32 +54,88 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   POINT pt;
-  RECT rc;
   HDC hDC;
+  PAINTSTRUCT ps;
 
-  INT r;
+  static INT w, h, r = 50;
+  static INT mode = 1;
+  static HDC hMemDC;
+  static HBITMAP hBm;
 
   switch (Msg)
   {
   case WM_CREATE:
-    SetTimer(hWnd, 15, 2, NULL);
+    hDC = GetDC(hWnd);
+    hMemDC = CreateCompatibleDC(hDC);
+    ReleaseDC(hWnd, hDC);
+
+    SetTimer(hWnd, 15,  30, NULL);
+    return 0;
+  case WM_SIZE:
+    w = LOWORD(lParam);
+    h = HIWORD(lParam);
+
+    if (hBm != NULL)
+      DeleteObject(hBm);
+
+    hDC = GetDC(hWnd);
+    hBm = CreateCompatibleBitmap(hDC, w, h);
+    ReleaseDC(hWnd, hDC);
+
+    SelectObject(hMemDC, hBm);
+
+    return 0;
+  case WM_KEYDOWN:
+    if (wParam == VK_SPACE)
+      mode = 1 - mode;
     return 0;
   case WM_TIMER:
     GetCursorPos(&pt);
     ScreenToClient(hWnd, &pt);
     
-    hDC = GetDC(hWnd);
-    GetClientRect(hWnd, &rc);
+    SetDCBrushColor(hMemDC, RGB(100, 0, 0));
+    Rectangle(hMemDC, 0, 0, w, h);
 
-    r = rc.right > rc.bottom ? rc.bottom : rc.right;
+    if (mode == 2)
+    {
+      r = w > h ? h : w;
+      DrawEye(hMemDC, w / 2 - r / 4 - r / 20, h / 2, r / 4, r / 20, pt.x, pt.y);
+      DrawEye(hMemDC, w / 2 + r/ 4 + r / 20, h / 2, r / 4, r / 20, pt.x, pt.y);
+    }
+    else if (mode == 0)
+    {
+      INT i;
 
-    DrawEye(hDC, rc.right / 2 - r / 4 - r / 20, rc.bottom / 2, r / 4, r / 20, pt.x, pt.y);
-    DrawEye(hDC, rc.right / 2 + r / 4 + r / 20, rc.bottom / 2, r / 4, r / 20, pt.x, pt.y);
-  
-    ReleaseDC(hWnd, hDC);
+      srand(1244);        
+
+      for (i = 0; i < 30; i++)
+      {
+         DrawEye(hMemDC, rand() % 2000, rand() % 1200, 45 + rand() % 20, 15 + rand() % 10, pt.x, pt.y); 
+      }
+    }
+    else
+    {
+      INT i, j;
+
+      for (i = r + 1; i < 2000; i += (2 * r + 10))
+        for (j = r + 1; j < 1200; j += (2 * r + 10))
+          DrawEye(hMemDC, i, j, r, r / 5, pt.x, pt.y);
+    }
+    
+    InvalidateRect(hWnd, NULL, FALSE);
 
     return 0;
+  case WM_PAINT:
+    hDC = BeginPaint(hWnd, &ps);
+    BitBlt(hDC, 0, 0, w, h, hMemDC, 0, 0, SRCCOPY);
+    EndPaint(hWnd, &ps);
+    return 0;
+  case WM_ERASEBKGND:
+    return 1;
   case WM_DESTROY:
+    DeleteObject(hBm);
+    DeleteDC(hMemDC);
+
     PostQuitMessage(0);
     KillTimer(hWnd, 15);
     return 0;
@@ -88,13 +144,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
 
-void DrawEye(HDC hDC, int x, int y, int r, int r1, int mx, int my)
+void DrawEye(HDC hDC, INT x, INT y, INT r, INT r1, INT mx, INT my)
 {
-  DOUBLE t, x1, y1;
+  DOUBLE t, dr, x1, y1;
 
-  t = (r - r1) / sqrt((mx - x) * (mx - x) + (my - y) * (my - y));
-  x1 = x + (mx - x) * t;
-  y1 = y + (my - y) * t;
+  dr = r - r1;
+  t = sqrt((mx - x) * (mx - x) + (my - y) * (my - y));
 
   SelectObject(hDC, GetStockObject(DC_PEN));
   SelectObject(hDC, GetStockObject(DC_BRUSH));
@@ -107,5 +162,16 @@ void DrawEye(HDC hDC, int x, int y, int r, int r1, int mx, int my)
   SetDCPenColor(hDC, RGB(255, 255, 255));
   SetDCBrushColor(hDC, RGB(0, 0, 230));
 
-  Ellipse(hDC, x1 - r1, y1 + r1, x1 + r1, y1 - r1);
+  if (t < dr)
+  {  
+    x1 = mx;
+    y1 = my;
+  }
+  else
+  {
+    x1 = x + (mx - x) * dr / t;
+    y1 = y + (my - y) * dr / t;
+  }
+
+  Ellipse(hDC, (INT)(x1 - r1), (INT)(y1 + r1), (INT)(x1 + r1), (INT)(y1 - r1));
 }
