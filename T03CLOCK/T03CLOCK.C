@@ -65,8 +65,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   MINMAXINFO *minmax;
 
   static INT w, h, len;
-  static HDC hMemDC, hDCXor, hDCAnd, hDCImage;
-  static HBITMAP hBm, hBmXor, hBmAnd, hBmImage;
+  static HDC hMemDC, hDCXor, hDCAnd;
+  static HBITMAP hBm, hBmXor, hBmAnd;
   static HFONT hFnt;
   static char Buf[1000];
   static char* days[] = {"Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"};
@@ -78,16 +78,13 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     hMemDC = CreateCompatibleDC(hDC);
     hDCXor = CreateCompatibleDC(hDC);
     hDCAnd = CreateCompatibleDC(hDC);
-    hDCImage = CreateCompatibleDC(hDC);
     ReleaseDC(hWnd, hDC);
 
     hFnt = CreateFont(50, 0, 0, 0, FW_THIN, TRUE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, VARIABLE_PITCH | FF_SWISS, "");
     SelectObject(hMemDC, hFnt);
 
-    hBmImage = LoadImage(NULL, "Clock.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hBmXor = LoadImage(NULL, "Clock_XOR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     hBmAnd = LoadImage(NULL, "Clock_AND.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    SelectObject(hDCImage, hBmImage);
     SelectObject(hDCXor, hBmXor);
     SelectObject(hDCAnd, hBmAnd);
 
@@ -121,8 +118,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
     GetLocalTime(&tm);
 
-    GetObject(hBmImage, sizeof(BITMAP), &bm);
-    /*BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCImage, 0, 0, SRCCOPY);*/
+    GetObject(hBmAnd, sizeof(BITMAP), &bm);
 
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCAnd, 0, 0, SRCAND);
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCXor, 0, 0, SRCINVERT);
@@ -166,8 +162,6 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     DeleteDC(hDCXor);
     DeleteObject(hBmAnd);
     DeleteDC(hDCAnd);
-    DeleteObject(hBmImage);
-    DeleteDC(hDCImage);
 
     DeleteObject(hFnt);
 
