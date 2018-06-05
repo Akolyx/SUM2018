@@ -15,7 +15,15 @@ FILE *F;
 
 CHAR* parity[] = {"Even", "Odd"};
 
-/* Output the permutation in file */
+/* Output the permutation in file
+ * ARGUMENTS:
+ *   - number of elements:
+ *       INT n;
+ *   - if the permutation is even (0) or odd (1):
+ *       INT par;
+ * RETURNS:
+ *   None.
+ */
 VOID Store( INT n , INT par)
 {
   INT i;
@@ -30,7 +38,13 @@ VOID Store( INT n , INT par)
   }
 } /* End of 'Store' function */
 
-/* Exchanging two variables */
+/* Exchanging two variables
+ * ARGUMENTS:
+ *   - two pointers on int variables:
+ *       INT *a, INT *b;
+ * RETURNS:
+ *   None.
+ */
 VOID Swap( INT *a, INT *b )
 {
   INT tmp = *a;
@@ -38,7 +52,13 @@ VOID Swap( INT *a, INT *b )
   *b = tmp;
 } /* End of 'Swap' function */
 
-/* Sort out the permutations of second indices and induce the Det for each one */
+/* Sort out the permutations of second indices and induce the Det for each one
+ * ARGUMENTS:
+ *   - number of elements:
+ *       INT n;
+ * RETURNS:
+ *   (INT) - 0, if the permutation is the last in the lexicographic order, 1 otherwise.
+ */
 INT PermLex(INT n)
 {
   INT i = -1, k;
