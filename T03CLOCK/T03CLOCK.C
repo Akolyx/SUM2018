@@ -1,11 +1,20 @@
+/* FILE NAME: T03CLOCK.C
+ * PROGRAMMER: DI6
+ * DATE: 05.06.2018
+ * PURPOSE: WinAPI Clock.
+ */
+
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
 #define PI 3.14159265358979323846
+
+/* Main window class name */
 #define WND_CLASS_NAME "My window class"
 
+/* Forward references */
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 void DrawHand(HDC hDc, INT x0, INT y0, INT l, INT w, DOUBLE angle );
 void DrawSecondHand(HDC hDc, INT x0, INT y0, INT l, INT w, DOUBLE angle );
@@ -54,7 +63,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   }
    
   return 0;
-}
+} /* End of 'WinMain' function */
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
@@ -170,8 +179,9 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   }
 
   return DefWindowProc(hWnd, Msg, wParam, lParam);
-}
+} /* End of 'MyWindowFunc' function */
 
+/* Drawing of minute and hour arrow-shaped hands */
 void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
 {
   DOUBLE mysin, mycos;
@@ -196,8 +206,9 @@ void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
   SetDCBrushColor(hDC, RGB(0, 0, 0));
 
   Polygon(hDC, pts1, sizeof(pts) / sizeof(pts[0]));
-}
+} /* End of 'DrawHand' function */
 
+/* Drawing of thin, red second hand */
 void DrawSecondHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
 {
   DOUBLE mysin, mycos;
@@ -222,7 +233,7 @@ void DrawSecondHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
   SetDCBrushColor(hDC, RGB(255, 0, 0));
 
   Polygon(hDC, pts1, sizeof(pts) / sizeof(pts[0]));
-}
+} /* End of 'DrawSecondHand' function */
 
 VOID FlipFullScreen( HWND hWnd )
 {
@@ -261,3 +272,5 @@ VOID FlipFullScreen( HWND hWnd )
       rc.right - rc.left, rc.bottom - rc.top, SWP_NOOWNERZORDER);
   }
 } /* End of 'FlipFullScreen' function */
+
+/* END OF 'T03CLOCK.C' FILE */
