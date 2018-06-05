@@ -7,7 +7,8 @@
 #define WND_CLASS_NAME "My window class"
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
-void DrawHand(HDC hDc, INT x0, INT y0, INT l, INT w, DOUBLE angle, BOOL sec );
+void DrawHand(HDC hDc, INT x0, INT y0, INT l, INT w, DOUBLE angle );
+void DrawSecondHand(HDC hDc, INT x0, INT y0, INT l, INT w, DOUBLE angle );
 void FlipFullScreen( HWND hWnd );
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
@@ -113,7 +114,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_TIMER:
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
+    SetDCBrushColor(hMemDC, RGB(0, 175, 0));
     Rectangle(hMemDC, 0, 0, w, h);
 
     GetLocalTime(&tm);
@@ -123,21 +124,19 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCAnd, 0, 0, SRCAND);
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCXor, 0, 0, SRCINVERT);
 
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.40), (INT)(bm.bmWidth * 0.008), tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000, TRUE);
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.37), (INT)(bm.bmWidth * 0.01), tm.wMinute * PI / 30 + tm.wSecond * PI / 1800, FALSE);
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.32), (INT)(bm.bmWidth * 0.012), (tm.wHour % 12) * PI / 6 + tm.wMinute * PI / 360, FALSE);
+    DrawSecondHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.40), (INT)(bm.bmWidth * 0.005), tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000);
+    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.37), (INT)(bm.bmWidth * 0.008), tm.wMinute * PI / 30 + tm.wSecond * PI / 1800);
+    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.30), (INT)(bm.bmWidth * 0.01), (tm.wHour % 12) * PI / 6 + tm.wMinute * PI / 360);
 
     len = sprintf(Buf, "%s, %02i.%02i.%i", days[tm.wDayOfWeek], tm.wDay, tm.wMonth, tm.wYear);
 
-    SetTextColor(hMemDC, RGB(0, 0, 0));
+    SetTextColor(hMemDC, RGB(255, 255, 255));
     SetBkMode(hMemDC, TRANSPARENT);
     GetTextExtentPoint(hMemDC, Buf, len, &s);
     TextOut(hMemDC, w / 2 - s.cx / 2, h / 2 + bm.bmHeight / 2, Buf, len);
 
     len = sprintf(Buf, "%02i:%02i:%02i", tm.wHour, tm.wMinute, tm.wSecond);
 
-    SetTextColor(hMemDC, RGB(0, 0, 0));
-    SetBkMode(hMemDC, TRANSPARENT);
     GetTextExtentPoint(hMemDC, Buf, len, &s);
     TextOut(hMemDC, w / 2 - s.cx / 2, h / 2 + bm.bmHeight / 2 + s.cy, Buf, len);
 
@@ -173,7 +172,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
 
-void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle, BOOL sec )
+void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
 {
   DOUBLE mysin, mycos;
   INT i;
@@ -187,14 +186,40 @@ void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle, BOOL sec )
 
   for (i = 0; i < sizeof(pts) / sizeof(pts[0]); i++)
   {
-    pts1[i].x = (LONG)(x0 + pts[i].x * mycos - pts[i].y * mysin);
-    pts1[i].y = (LONG)(y0 + pts[i].x * mysin + pts[i].y * mycos);
+    pts1[i].x = (LONG)(x0 - pts[i].x * mycos + pts[i].y * mysin);
+    pts1[i].y = (LONG)(y0 - pts[i].x * mysin - pts[i].y * mycos);
   }
 
   SetBkMode(hDC, TRANSPARENT);
 
   SelectObject(hDC, GetStockObject(DC_BRUSH));
-  SetDCBrushColor(hDC, RGB(0, 250, 0));
+  SetDCBrushColor(hDC, RGB(0, 0, 0));
+
+  Polygon(hDC, pts1, sizeof(pts) / sizeof(pts[0]));
+}
+
+void DrawSecondHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
+{
+  DOUBLE mysin, mycos;
+  INT i;
+
+  POINT pts[] = {{-w, 0}, {-w, l}, {w, l}, {w, 0}};
+
+  POINT pts1[sizeof(pts) / sizeof(pts[0])];
+
+  mysin = sin(angle);
+  mycos = cos(angle);
+
+  for (i = 0; i < sizeof(pts) / sizeof(pts[0]); i++)
+  {
+    pts1[i].x = (LONG)(x0 - pts[i].x * mycos + pts[i].y * mysin);
+    pts1[i].y = (LONG)(y0 - pts[i].x * mysin - pts[i].y * mycos);
+  }
+
+  SetBkMode(hDC, OPAQUE);
+
+  SelectObject(hDC, GetStockObject(DC_BRUSH));
+  SetDCBrushColor(hDC, RGB(255, 0, 0));
 
   Polygon(hDC, pts1, sizeof(pts) / sizeof(pts[0]));
 }
