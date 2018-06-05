@@ -123,7 +123,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_TIMER:
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-    SetDCBrushColor(hMemDC, RGB(0, 175, 0));
+    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
     Rectangle(hMemDC, 0, 0, w, h);
 
     GetLocalTime(&tm);
@@ -133,13 +133,13 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCAnd, 0, 0, SRCAND);
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCXor, 0, 0, SRCINVERT);
 
-    DrawSecondHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.40), (INT)(bm.bmWidth * 0.005), tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000);
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.37), (INT)(bm.bmWidth * 0.008), tm.wMinute * PI / 30 + tm.wSecond * PI / 1800);
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.30), (INT)(bm.bmWidth * 0.01), (tm.wHour % 12) * PI / 6 + tm.wMinute * PI / 360);
+    DrawSecondHand(hMemDC, w / 2 + 98.5, h / 2 + 59, (INT)(bm.bmWidth * 0.08), (INT)(bm.bmWidth * 0.003), tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000);
+    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.37), (INT)(bm.bmWidth * 0.005), tm.wMinute * PI / 30 + tm.wSecond * PI / 1800);
+    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.30), (INT)(bm.bmWidth * 0.008), (tm.wHour % 12) * PI / 6 + tm.wMinute * PI / 360);
 
     len = sprintf(Buf, "%s, %02i.%02i.%i", days[tm.wDayOfWeek], tm.wDay, tm.wMonth, tm.wYear);
 
-    SetTextColor(hMemDC, RGB(255, 255, 255));
+    SetTextColor(hMemDC, RGB(0, 0, 0));
     SetBkMode(hMemDC, TRANSPARENT);
     GetTextExtentPoint(hMemDC, Buf, len, &s);
     TextOut(hMemDC, w / 2 - s.cx / 2, h / 2 + bm.bmHeight / 2, Buf, len);
@@ -181,7 +181,19 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 } /* End of 'MyWindowFunc' function */
 
-/* Drawing of minute and hour arrow-shaped hands */
+/* Drawing of minute and hour arrow-shaped hands
+ * ARGUMENTS:
+ *   - handle of paint contest:
+ *       HDC hDC;
+ *   - coordinates of center of the clock:
+ *       INT x0, INT y0;
+ *   - characteristics of the hand - length and width:
+ *       INT l, INT w;
+ *   - angle on which we must turn our hand (in radians):
+ *       DOUBLE angle;
+ * RETURNS:
+ *   None.
+ */
 void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
 {
   DOUBLE mysin, mycos;
@@ -202,13 +214,28 @@ void DrawHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
 
   SetBkMode(hDC, TRANSPARENT);
 
+  SelectObject(hDC, GetStockObject(DC_PEN));
+  SetDCPenColor(hDC, RGB(0, 0, 0));
+
   SelectObject(hDC, GetStockObject(DC_BRUSH));
   SetDCBrushColor(hDC, RGB(0, 0, 0));
 
   Polygon(hDC, pts1, sizeof(pts) / sizeof(pts[0]));
 } /* End of 'DrawHand' function */
 
-/* Drawing of thin, red second hand */
+/* Drawing of thin, red second hand
+ * ARGUMENTS:
+ *   - handle of paint contest:
+ *       HDC hDC;
+ *   - coordinates of center of the clock:
+ *       INT x0, INT y0;
+ *   - characteristics of the hand - length and width:
+ *       INT l, INT w;
+ *   - angle on which we must turn our hand (in radians):
+ *       DOUBLE angle;
+ * RETURNS:
+ *   None.
+ */
 void DrawSecondHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
 {
   DOUBLE mysin, mycos;
@@ -232,9 +259,13 @@ void DrawSecondHand( HDC hDC, INT x0, INT y0, INT l, INT w, DOUBLE angle )
   SelectObject(hDC, GetStockObject(DC_BRUSH));
   SetDCBrushColor(hDC, RGB(255, 0, 0));
 
+  SelectObject(hDC, GetStockObject(DC_PEN));
+  SetDCPenColor(hDC, RGB(255, 0, 0));
+
   Polygon(hDC, pts1, sizeof(pts) / sizeof(pts[0]));
 } /* End of 'DrawSecondHand' function */
 
+/* Enabling switching between window and fullscreen modes */
 VOID FlipFullScreen( HWND hWnd )
 {
   static BOOL IsFullScreen = FALSE;
@@ -273,4 +304,4 @@ VOID FlipFullScreen( HWND hWnd )
   }
 } /* End of 'FlipFullScreen' function */
 
-/* END OF 'T03CLOCK.C' FILE */
+/* End of 'T03CLOCK.C' file */
