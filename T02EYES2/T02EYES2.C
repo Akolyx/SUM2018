@@ -1,12 +1,20 @@
+/* FILE NAME: T02EYES2.C
+ * PROGRAMMER: DI6
+ * DATE: 05.01.2018
+ * PURPOSE: Eyes following the cursor in different modes.
+ */
+
 #include <windows.h>
 #include <stdlib.h>
 #include <math.h>
 
+/* Main window class name */
 #define WND_CLASS_NAME "My window class"
 
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
 void DrawEye(HDC hDC, int x, int y, int r, int r1, int mx, int my);
 
+/* Main function */
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
 {
   HWND hWnd;
@@ -49,8 +57,9 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   }
    
   return 0;
-}
+} /* End of 'WinMain' function */
 
+/* Function defining feedback of our window */
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   POINT pt;
@@ -144,8 +153,21 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   }
 
   return DefWindowProc(hWnd, Msg, wParam, lParam);
-}
+} /* End of 'MyWindowFunc' function */
 
+/* Drawing an eye
+ * ARGUMENTS:
+ *   - handle of paint contest:
+ *       HDC hDC;
+ *   - coordinates of center of the eye:
+ *       INT x, INT y;
+ *   - radii of the eye itself and of pupil:
+ *       INT r, INT r1;
+ *   - coordinates of mouse's position at the moment:
+ *       INT mx, INT my;
+ * RETURNS:
+ *   None.
+ */
 void DrawEye(HDC hDC, INT x, INT y, INT r, INT r1, INT mx, INT my)
 {
   DOUBLE t, dr, x1, y1;
@@ -176,4 +198,6 @@ void DrawEye(HDC hDC, INT x, INT y, INT r, INT r1, INT mx, INT my)
   }
 
   Ellipse(hDC, (INT)(x1 - r1), (INT)(y1 + r1), (INT)(x1 + r1), (INT)(y1 - r1));
-}
+} /* End of 'DrawEye' function */
+
+/* End of 'T02EYES2' file */
