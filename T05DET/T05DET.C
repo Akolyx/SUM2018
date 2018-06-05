@@ -19,7 +19,13 @@ INT PermLex(INT n);
 
 FILE *F, *A;
 
-/* Load matrix from file */
+/* Load matrix from file
+ * ARGUMENTS:
+ *   - name of the file:
+ *       CHAR *Filename;
+ * RETURNS:
+ *   (BOOL) - TRUE if matrix was loaded, FALSE otherwise.
+ */
 BOOL LoadMatrix(CHAR *Filename)
 {
   int i, j;
@@ -61,7 +67,15 @@ BOOL LoadMatrix(CHAR *Filename)
   }
 } /* End of 'LoadMatrix' function */
 
-/* Adding a single element of sum of determinant */
+/* Adding a single element of sum of determinant
+ * ARGUMENTS:
+ *   - number of elements:
+ *       INT n;
+ *   - if the permutation is even (1) or odd (-1):
+ *       INT par;
+ * RETURNS:
+ *   None.
+ */
 VOID Det( INT n , INT par)
 {
   INT i;
@@ -73,7 +87,13 @@ VOID Det( INT n , INT par)
   Determinant += add * par;
 } /* End of 'Det' function */
 
-/* Exchanging two variables */
+/* Exchanging two variables
+ * ARGUMENTS:
+ *   - two pointers on int variables:
+ *       INT *a, INT *b;
+ * RETURNS:
+ *   None.
+ */
 VOID Swap( INT *a, INT *b )
 {
   INT tmp = *a;
@@ -81,7 +101,13 @@ VOID Swap( INT *a, INT *b )
   *b = tmp;
 } /* End of 'Swap' function */
 
-/* Sort out the permutations of second indices and induce the Det for each one */
+/* Sort out the permutations of second indices and induce the Det for each one
+ * ARGUMENTS:
+ *   - number of elements:
+ *       INT n;
+ * RETURNS:
+ *   (INT) - 0, if the permutation is the last in the lexicographic order, 1 otherwise.
+ */
 INT PermLex(INT n)
 {
   INT i = -1, k;
