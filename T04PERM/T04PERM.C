@@ -1,3 +1,9 @@
+/* FILE NAME: T04PERM.C
+ * PROGRAMMER: DI6
+ * DATE: 05.06.2018
+ * PURPOSE: Enumerating of all permutations from 1 to n.
+ */
+
 #include <windows.h>
 #include <stdio.h>
 
@@ -9,6 +15,7 @@ FILE *F;
 
 CHAR* parity[] = {"Even", "Odd"};
 
+/* Output the permutation in file */
 VOID Store( INT n , INT par)
 {
   INT i;
@@ -21,15 +28,17 @@ VOID Store( INT n , INT par)
       fprintf(F, "%d ", p[i]);
     fprintf(F, "- %s\n", parity[par]);
   }
-}
+} /* End of 'Store' function */
 
+/* Exchanging two variables */
 VOID Swap( INT *a, INT *b )
 {
   INT tmp = *a;
   *a = *b;
   *b = tmp;
-}
+} /* End of 'Swap' function */
 
+/* Sort out the permutations of second indices and induce the Det for each one */
 INT PermLex(INT n)
 {
   INT i = -1, k;
@@ -70,8 +79,9 @@ INT PermLex(INT n)
   Store(n, par);
 
   return 1;
-}
+} /* End of 'PermLex' function */
 
+/* Main function */
 VOID main( VOID )
 {
   INT i, n;
@@ -97,4 +107,6 @@ VOID main( VOID )
   }
 
   fclose(F);
-}
+} /* End of 'main' function */
+
+/* End of 'T04PERM' file */
