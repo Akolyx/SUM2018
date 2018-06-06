@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "resource.h"
+
 #define PI 3.14159265358979323846
 
 /* Main window class name */
@@ -73,6 +75,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   SIZE s;
   SYSTEMTIME tm;
   MINMAXINFO *minmax;
+  CREATESTRUCT *cs;
 
   static INT w, h, len;
   static HDC hMemDC, hDCXor, hDCAnd;
@@ -90,11 +93,19 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     hDCAnd = CreateCompatibleDC(hDC);
     ReleaseDC(hWnd, hDC);
 
+    FlipFullScreen(hWnd);
+
     hFnt = CreateFont(50, 0, 0, 0, FW_THIN, TRUE, FALSE, FALSE, RUSSIAN_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY, VARIABLE_PITCH | FF_SWISS, "");
     SelectObject(hMemDC, hFnt);
 
-    hBmXor = LoadImage(NULL, "Clock_XOR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    hBmAnd = LoadImage(NULL, "Clock_AND.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    /*hBmXor = LoadImage(NULL, "Clock_XOR.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    hBmAnd = LoadImage(NULL, "Clock_AND.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
+
+    cs = (CREATESTRUCT *)lParam;
+
+    hBmXor = LoadImage(cs->hInstance, (CHAR *)IDB_BITMAP2, IMAGE_BITMAP, 0, 0, LR_COPYFROMRESOURCE);
+    hBmAnd = LoadImage(cs->hInstance, (CHAR *)IDB_BITMAP1, IMAGE_BITMAP, 0, 0, LR_COPYFROMRESOURCE);
+
     SelectObject(hDCXor, hBmXor);
     SelectObject(hDCAnd, hBmAnd);
 
@@ -123,6 +134,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_TIMER:
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
+
     SetDCBrushColor(hMemDC, RGB(255, 255, 255));
     Rectangle(hMemDC, 0, 0, w, h);
 
@@ -133,9 +145,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCAnd, 0, 0, SRCAND);
     BitBlt(hMemDC, w / 2 - bm.bmWidth / 2, h / 2 - bm.bmWidth / 2, bm.bmWidth, bm.bmHeight, hDCXor, 0, 0, SRCINVERT);
 
-    DrawSecondHand(hMemDC, w / 2 + 98.5, h / 2 + 59, (INT)(bm.bmWidth * 0.08), (INT)(bm.bmWidth * 0.003), tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000);
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.37), (INT)(bm.bmWidth * 0.005), tm.wMinute * PI / 30 + tm.wSecond * PI / 1800);
-    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.30), (INT)(bm.bmWidth * 0.008), (tm.wHour % 12) * PI / 6 + tm.wMinute * PI / 360);
+    SetDCBrushColor(hMemDC, RGB(0, 0, 0));
+    Ellipse(hMemDC, w / 2 - 12, h / 2 + 12, w / 2 + 12, h / 2 - 12);
+
+    DrawSecondHand(hMemDC, w / 2 + 99, h / 2 + 60, (INT)(bm.bmWidth * 0.08), (INT)(bm.bmWidth * 0.003), tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000);
+    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.37), (INT)(bm.bmWidth * 0.01), tm.wMinute * PI / 30 + tm.wSecond * PI / 1800);
+    DrawHand(hMemDC, w / 2, h / 2, (INT)(bm.bmWidth * 0.30), (INT)(bm.bmWidth * 0.01), (tm.wHour % 12) * PI / 6 + tm.wMinute * PI / 360);
 
     len = sprintf(Buf, "%s, %02i.%02i.%i", days[tm.wDayOfWeek], tm.wDay, tm.wMonth, tm.wYear);
 
@@ -160,9 +175,17 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   case WM_KEYDOWN:
     if (wParam == 'F')
       FlipFullScreen(hWnd);
+    else if (wParam == VK_ESCAPE)
+      SendMessage(hWnd, WM_CLOSE, 0, 0);
+
     return 0;
   case WM_ERASEBKGND:
     return 1;
+  case WM_CLOSE:
+    if (MessageBox(hWnd, "Are you sure to close the window?", "Quit", MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2) == IDYES)
+      SendMessage(hWnd, WM_DESTROY, 0, 0);
+
+    return 0;
   case WM_DESTROY:
     DeleteObject(hBm);
     DeleteDC(hMemDC);
