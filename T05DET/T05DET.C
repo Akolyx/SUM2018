@@ -1,7 +1,7 @@
 /* FILE NAME: T05DET.C
  * PROGRAMMER: DI6
  * DATE: 05.06.2018
- * PURPOSE: Calculate of determinant of matrix.
+ * PURPOSE: Calculate determinant of matrix.
  */
 
 #include <windows.h>
