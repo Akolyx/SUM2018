@@ -1,11 +1,12 @@
 /* FILE NAME: T06DETG.C
  * PROGRAMMER: DI6
- * DATE: 05.06.2018
- * PURPOSE: Calculate of determinant of matrix.
+ * DATE: 06.06.2018
+ * PURPOSE: Calculate determinant of matrix using Gauss's method.
  */
 
 #include <windows.h>
 #include <stdio.h>
+#include <math.h>
 
 #define MAX 50
 
@@ -24,7 +25,7 @@ DOUBLE CalcDet(INT n);
  *   - name of the file:
  *       CHAR *Filename;
  * RETURNS:
- *   (BOOL) - TRUE if matrix was loaded, FALSE otherwise.
+ *   (BOOL) - TRUE if matrix was loaded correctly, FALSE otherwise.
  */
 BOOL LoadMatrix(CHAR *Filename)
 {
@@ -79,8 +80,8 @@ DOUBLE CalcDet(INT n)
   for (i = 0; i < n; i++)
   {
     for (j = i + 1; (a[i][i] == 0) && (j < n); j++)
-      for (k = i; k < n; k++)
-        a[i][k] += a[j][k];
+      for (k = 0; k < n; k++)
+        a[i][k] += fabs(a[j][k]);
 
     if (a[i][i] == 0)
       return 0;
