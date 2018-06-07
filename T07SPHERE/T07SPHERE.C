@@ -1,22 +1,19 @@
-/* FILE NAME: T07CLOCK.C
+/* FILE NAME: T07SPHERE.C
  * PROGRAMMER: DI6
  * DATE: 06.06.2018
- * PURPOSE: Moving sphere using orthogonal projection.
+ * PURPOSE: Rotating sphere using orthogonal projection.
  */
 
-#include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 
-#define PI 3.14159265358979323846
+#include "Sphere.h"
 
 /* Main window class name */
 #define WND_CLASS_NAME "My window class"
 
 /* Forward references */
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
-void DrawSphere( HDC hDC, INT x0, INT y0, INT r, INT p, DOUBLE angle );
 void FlipFullScreen( HWND hWnd );
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
@@ -68,7 +65,6 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 {
   HDC hDC;
   PAINTSTRUCT ps;
-  SYSTEMTIME tm;
   MINMAXINFO *minmax;
 
   static INT w, h, len;
@@ -85,7 +81,9 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     SelectObject(hMemDC, GetStockObject(DC_BRUSH));
     SelectObject(hMemDC, GetStockObject(DC_PEN));
 
-    SetTimer(hWnd, 15,  1, NULL);
+    ModelSphere();
+
+    SetTimer(hWnd, 15,  30, NULL);
     return 0;
   case WM_GETMINMAXINFO:
     minmax = (MINMAXINFO *)lParam;
@@ -109,12 +107,10 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
     return 0;
   case WM_TIMER:
-    SetDCBrushColor(hMemDC, RGB(0, 0, 0));
+    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
     Rectangle(hMemDC, 0, 0, w, h);
 
-    GetLocalTime(&tm);
-
-    DrawSphere(hMemDC, w / 2, h / 2, (w < h ? w / 4 : h / 4), 15, tm.wSecond * PI / 30 + tm.wMilliseconds * PI / 30000);
+    DrawSphere(hMemDC, w / 2, h / 2, (w < h ? w / 4 : h / 4));
 
     InvalidateRect(hWnd, NULL, TRUE);
 
@@ -149,112 +145,6 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 } /* End of 'MyWindowFunc' function */
-
-/* Drawing of sphere with meridians and parallels
- * ARGUMENTS:
- *   - handle of paint contest:
- *       HDC hDC;
- *   - coordinates of center of the sphere:
- *       INT x, INT y;
- *   - radius of the sphere:
- *       INT r;
- *   - amount of slices:
- *       INT p;
- *   - turning angle:
- *       DOUBLE angle;
- * RETURNS:
- *   None.
- */
-void DrawSphere( HDC hDC, INT x, INT y, INT r, INT p, DOUBLE angle )
-{
-  INT i, j, x1, y1;
-  INT x2, y2, x3, y3;
-  DOUBLE f = 0, t = angle, d = PI / p;
-  static INT x0, y0;
-  POINT pts[4];
-
-  /*for (i = 0; i < p; i++)
-  {  
-    for (j = 0; j <= 2 * p; j++)
-    {
-      f += d;
-
-      x1 = (INT)(r * sin(t) * cos(f));
-      y1 = (INT)(r * sin(t) * sin(f));
-
-      if (j != 0)
-      {
-        SetDCPenColor(hDC, RGB(0, 100, 255));
-
-        MoveToEx(hDC, x + x0, y + y0, NULL);
-        LineTo(hDC, x + x1, y + y1);
-      }
-
-      x0 = x1;
-      y0 = y1;
-    }
-
-    t += d;
-  }*/
-
-  for (i = 0; i < p; i++)
-  {  
-    for (j = 0; j <= 2 * p; j++)
-    {
-      f += d;
-
-      x1 = (INT)(r * sin(t) * cos(f));
-      y1 = (INT)(r * sin(t) * sin(f));
-
-      x2 = (INT)(r * sin(t + d) * cos(f));
-      y2 = (INT)(r * sin(t + d) * sin(f));
-
-      x3 = (INT)(r * sin(t + d) * cos(f - d));
-      y3 = (INT)(r * sin(t + d) * sin(f - d));
-
-      pts[0].x = x + x0, pts[0].y = y +  y0;
-      pts[1].x = x + x1, pts[1].y = y +  y1;
-      pts[2].x = x + x2, pts[2].y = y +  y2;
-      pts[3].x = x + x3, pts[3].y = y +  y3;
-
-      if (j != 0)
-      {
-        SetDCBrushColor(hDC, RGB((100 + j) % 256, (100 + j) % 256, (200 + j) % 256));
-
-        Polygon(hDC, pts, sizeof(pts) / sizeof(pts[0]));
-      }
-
-      x0 = x1;
-      y0 = y1;
-    }
-
-    t += d;
-  }
-
-  /*for (i = 0; i < p; i++)
-  {  
-    for (j = 0; j <= 2 * p; j++)
-    {
-      t += d;
-
-      x1 = (INT)(r * sin(t) * cos(f));
-      y1 = (INT)(r * sin(t) * sin(f));
-
-      if (j != 0)
-      {
-        SetDCPenColor(hDC, RGB(200, 200, 0));
-
-        MoveToEx(hDC, x + x0, y + y0, NULL);
-        LineTo(hDC, x + x1, y + y1);
-      }
-
-      x0 = x1;
-      y0 = y1;
-    }
-
-    f += d;
-  }*/
-} /* End of 'DrawSphere' function */
 
 /* Enabling switching between window and fullscreen modes */
 VOID FlipFullScreen( HWND hWnd )
