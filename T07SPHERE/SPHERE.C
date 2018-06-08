@@ -8,26 +8,23 @@
 #include <time.h>
 #define p 15
 
+typedef DOUBLE DBL;
+
 typedef struct
 {
-  DOUBLE x, y, z;
+  DBL x, y, z;
 } Vec;
 
-typedef struct
-{
-  DOUBLE x, y;
-} POINTD;
-
-Vec m[p][2 * p];
+Vec m[p + 1][2 * p];
 
 /* Constructing a vector with given coordinates
  * ARGUMENTS:
  *   - coordinates:
- *       DOUBLE x, DOUBLE y, DOUBLE z;
+ *       DBL x, DBL y, DBL z;
  * RETURNS:
  *   (Vec) - vector with given coordinates;
  */
-Vec ConstructVec(DOUBLE x, DOUBLE y, DOUBLE z)
+Vec ConstructVec(DBL x, DBL y, DBL z)
 {
   Vec v = {x, y, z};
   return v;
@@ -35,52 +32,56 @@ Vec ConstructVec(DOUBLE x, DOUBLE y, DOUBLE z)
 
 /* Rotating a vector along Z axis
  * ARGUMENTS:
- *   - coordinates:
- *       DOUBLE x, DOUBLE y;
+ *   - vector:
+ *       Vec v;
  *   - angle in degree:
- *       DOUBLE angledeg;
+ *       DBL angledeg;
  * RETURNS:
- *   (POINT) - new x and y coordinates;
+ *   (Vec) - new vector;
  */
-POINTD RotateZ(DOUBLE x, DOUBLE y, DOUBLE angledeg)
+Vec RotateZ(Vec v, DBL angledeg)
 {
-  DOUBLE x1, y1, a;
-  POINTD pt;
+  DBL a;
 
   a = angledeg * PI / 180;
 
-  x1 = x * cos(a) - y * sin(a);
-  y1 = x * sin(a) + y * cos(a);
-
-  pt.x = x1;
-  pt.y = y1;
-
-  return pt;
+  return ConstructVec(v.x * cos(a) - v.y * sin(a), v.x * sin(a) + v.y * cos(a), v.z);
 }
 
 /* Rotating a vector along Y axis
  * ARGUMENTS:
- *   - coordinates:
- *       DOUBLE z, DOUBLE x;
+ *   - vector:
+ *       Vec v;
  *   - angle in degree:
- *       DOUBLE angledeg;
+ *       DBL angledeg;
  * RETURNS:
- *   (POINT) - new x and y coordinates;
+ *   (Vec) - new vector;
  */
-POINTD RotateY(DOUBLE z, DOUBLE x, DOUBLE angledeg)
+Vec RotateY(Vec v, DBL angledeg)
 {
-  DOUBLE z1, x1, a;
-  POINTD pt;
+  DBL a;
 
   a = angledeg * PI / 180;
 
-  z1 = z * cos(a) - x * sin(a);
-  x1 = z * sin(a) + x * cos(a);
+  return ConstructVec(v.z * sin(a) + v.x * cos(a), v.y, v.z + cos(a) - v.x * sin(a));
+}
 
-  pt.x = z1;
-  pt.y = x1;
+/* Rotating a vector along X axis
+ * ARGUMENTS:
+ *   - vector:
+ *       Vec v;
+ *   - angle in degree:
+ *       DBL angledeg;
+ * RETURNS:
+ *   (Vec) - new vector;
+ */
+Vec RotateX(Vec v, DBL angledeg)
+{
+  DBL a;
 
-  return pt;
+  a = angledeg * PI / 180;
+
+  return ConstructVec(v.x, v.y * cos(a) - v.z * sin(a), v.y * sin(a) + v.z * cos(a));
 }
 
 /* Modeling a unit sphere
@@ -92,10 +93,10 @@ POINTD RotateY(DOUBLE z, DOUBLE x, DOUBLE angledeg)
 VOID ModelSphere()
 {
   INT i, j;
-  DOUBLE f = 0, t = 0, d = PI / p;
-  DOUBLE sint, cost;
+  DBL f = 0, t = 0, d = PI / p;
+  DBL sint, cost;
 
-  for (i = 0; i < p; i++)
+  for (i = 0; i <= p; i++)
   { 
     sint = sin(t);
     cost = cos(t);
@@ -125,45 +126,46 @@ VOID ModelSphere()
 void DrawSphere( HDC hDC, INT x, INT y, INT r)
 {
   INT i, j, k;
-  POINT pts[p][2 * p];
-  DOUBLE sq = 0.0;
-  LONG t = clock() / CLOCKS_PER_SEC;
-  POINTD ptd;
+  POINT pts[p + 1][2 * p + 1];
+  DBL sq = 0.0;
+  DBL t = (DBL)clock() / CLOCKS_PER_SEC;
+  Vec res;
 
-  for (i = 0; i < p; i++)
+  for (i = 0; i <= p; i++)
     for (j = 0; j < 2 * p; j++)
     {
-      ptd = RotateZ(m[i][j].x, m[i][j].y, (DOUBLE)(20));
+      res = RotateY(RotateZ(m[i][j], 20 * t), 10 * t);
 
-      pts[i][j].x = (LONG)(x + r * ptd.x);
-      pts[i][j].y = (LONG)(y + r * ptd.y);
+      pts[i][j].x = (LONG)(x + r * res.x);
+      pts[i][j].y = (LONG)(y + r * res.y);
     }
 
-  for (i = 0; i < p - 1; i++)
+  for (i = 0; i < p; i++)
+  {
+    POINT pnts[4];
+
     for (j = 0; j < 2 * p - 1; j++)
     {
-      POINT pnts[4];
-
       pnts[0] = pts[i][j];
       pnts[1] = pts[i][j + 1];
       pnts[2] = pts[i + 1][j + 1];
       pnts[3] = pts[i + 1][j];
 
       for (k = 0; k < 4; k++)
-        sq += (pnts[k].x - pnts[(k + 1) % 4].x) * (pnts[k].y + pnts[(k + 1) % 4].y) / 2;
+        sq += (pnts[k].x - pnts[(k + 1) % 4].x) * (pnts[k].y + pnts[(k + 1) % 4].y);
 
       if (sq > 0)
       {
-        SetDCPenColor(hDC, RGB(0, 0, 0));
+        SetDCPenColor(hDC, RGB(0, 200, 0));
         Polygon(hDC, pnts, 4);
       }
       else
       {
-        SetDCPenColor(hDC, RGB(200 + i, (200 + j) % 256, (200 + i + j) % 256));
+        SetDCPenColor(hDC, RGB(200, 200, 0));
         Polygon(hDC, pnts, 4);
       }
     }
-  
+  }
 } /* End of 'DrawSphere' function */
 
 /* End of 'SPHERE.C' file */

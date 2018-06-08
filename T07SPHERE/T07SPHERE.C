@@ -107,7 +107,7 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
     return 0;
   case WM_TIMER:
-    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
+    SetDCBrushColor(hMemDC, RGB(0, 0, 0));
     Rectangle(hMemDC, 0, 0, w, h);
 
     DrawSphere(hMemDC, w / 2, h / 2, (w < h ? w / 4 : h / 4));
