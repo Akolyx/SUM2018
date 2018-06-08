@@ -32,6 +32,9 @@ static MATR UnitMatrix =
   }
 };
 
+__inline VOID ModelSphere();
+__inline VOID DrawSphere( HDC hDC, INT w, INT h,INT x, INT y, INT r);
+
 __inline VEC VecSet( DBL x, DBL y, DBL z )
 {
   VEC v = {x, y, z};
@@ -91,28 +94,6 @@ __inline VEC VecNormalize( VEC v )
     return v;
 
   return VecDivNum(v, len);
-}
-
-__inline VEC PointTransform( VEC v, MATR m )
-{
-  DBL x = 0, y = 0, z = 0;
-
-  x = v.x * m.M[0][0] + v.y * m.M[1][0] + v.z * m.M[2][0] + m.M[3][0];
-  y = v.x * m.M[0][1] + v.y * m.M[1][1] + v.z * m.M[2][1] + m.M[3][1];
-  z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2] + m.M[3][2];
-
-  return VecSet(x, y, z);
-}
-
-__inline VEC VectorTransform( VEC v, MATR m )
-{
-  DBL x = 0, y = 0, z = 0;
-
-  x = v.x * m.M[0][0] + v.y * m.M[1][0] + v.z * m.M[2][0];
-  y = v.x * m.M[0][1] + v.y * m.M[1][1] + v.z * m.M[2][1];
-  z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2];
-
-  return VecSet(x, y, z);
 }
 
 __inline MATR MatrTranslate( VEC t )
@@ -268,4 +249,72 @@ __inline MATR MatrInverse( MATR m )
      r.M[i][j] /= det;
 
   return r;
+}
+
+__inline VEC PointTransform( VEC v, MATR m )
+{
+  DBL x = 0, y = 0, z = 0;
+
+  x = v.x * m.M[0][0] + v.y * m.M[1][0] + v.z * m.M[2][0] + m.M[3][0];
+  y = v.x * m.M[0][1] + v.y * m.M[1][1] + v.z * m.M[2][1] + m.M[3][1];
+  z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2] + m.M[3][2];
+
+  return VecSet(x, y, z);
+}
+
+__inline VEC VectorTransform( VEC v, MATR m )
+{
+  DBL x = 0, y = 0, z = 0;
+
+  x = v.x * m.M[0][0] + v.y * m.M[1][0] + v.z * m.M[2][0];
+  y = v.x * m.M[0][1] + v.y * m.M[1][1] + v.z * m.M[2][1];
+  z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2];
+
+  return VecSet(x, y, z);
+}
+
+__inline VEC VecMulMatr4x4( VEC v, MATR m )
+{
+  DBL x, y, z, w;
+
+  x = v.x * m.M[0][0] + v.y * m.M[1][0] + v.z * m.M[2][0] + m.M[3][0];
+  y = v.x * m.M[0][1] + v.y * m.M[1][1] + v.z * m.M[2][1] + m.M[3][1];
+  z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2] + m.M[3][2];
+  w = v.x * m.M[0][3] + v.y * m.M[1][3] + v.z * m.M[2][3] + m.M[3][3];
+
+  return VecSet(x / w, y / w, z / w);
+}
+
+__inline MATR MatrView( VEC loc, VEC at, VEC up1 )
+{
+  VEC dir = VecNormalize(VecSubVec(at, loc)),
+      right = VecNormalize(VecCrossVec(dir, up1)),
+      up = VecNormalize(VecCrossVec(right, dir));
+
+  MATR m = 
+  {
+    {
+      {right.x, up.x, -dir.x, 0},
+      {right.y, up.y, -dir.y, 0},
+      {right.z, up.z, -dir.z, 0},
+      {-VecDotVec(loc, right), -VecDotVec(loc, up), VecDotVec(loc, dir), 1}
+    }
+  };
+
+  return m;
+}
+
+__inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
+{
+  MATR m = 
+  {
+    {
+      {(2 * n) / (r - l), 0, 0, 0},
+      {0, (2 * n) / (t - b), 0, 0},
+      {(r + l) / (r - l), (t + b) / (t - b), -(f + n) / (f - n), -1},
+      {0, 0, -(2 * n * f) / (f - n), 0}
+    }
+  };
+
+  return m;
 }
