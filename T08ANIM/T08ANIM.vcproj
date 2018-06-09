@@ -178,18 +178,54 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath=".\MAIN.C"
+			<Filter
+				Name="Math tools"
 				>
-			</File>
-			<File
-				RelativePath=".\VEC.C"
+				<File
+					RelativePath=".\MATH\VEC.C"
+					>
+				</File>
+				<File
+					RelativePath=".\MATH\VEC.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Windows"
 				>
-			</File>
-			<File
-				RelativePath=".\VEC.h"
+				<File
+					RelativePath=".\DEF.H"
+					>
+				</File>
+				<File
+					RelativePath=".\MAIN.C"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Animation"
 				>
-			</File>
+				<Filter
+					Name="Rendering"
+					>
+					<File
+						RelativePath=".\ANIM\RND\RND.H"
+						>
+					</File>
+					<File
+						RelativePath=".\ANIM\RND\RNDBASE.C"
+						>
+					</File>
+					<File
+						RelativePath=".\ANIM\RND\RNDCAM.C"
+						>
+					</File>
+					<File
+						RelativePath=".\ANIM\RND\RNDPRIM.C"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"

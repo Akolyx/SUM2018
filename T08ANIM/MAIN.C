@@ -1,15 +1,11 @@
 /* FILE NAME: MAIN.C
  * PROGRAMMER: DI6
- * DATE: 08.06.2018
+ * DATE: 09.06.2018
  * PURPOSE: Animation.
  */
 
-#include "VEC.H"
 #include <time.h>
-
-#define p 15
-
-VEC m[p + 1][2 * p];
+#include "anim\rnd\rnd.h"
 
 /* Main window class name */
 #define WND_CLASS_NAME "My window class"
@@ -42,7 +38,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   }
 
   hWnd = CreateWindow(WND_CLASS_NAME,
-          "Eyes",
+          "Animation",
           WS_OVERLAPPEDWINDOW,
           CW_USEDEFAULT, CW_USEDEFAULT,
           CW_USEDEFAULT, CW_USEDEFAULT,
@@ -69,57 +65,60 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
   PAINTSTRUCT ps;
   MINMAXINFO *minmax;
 
-  static INT w, h, len;
-  static HDC hMemDC;
-  static HBITMAP hBm;
+  double t;
+
+  static di6PRIM Pr;
 
   switch (Msg)
   {
-  case WM_CREATE:
-    hDC = GetDC(hWnd);
-    hMemDC = CreateCompatibleDC(hDC);
-    ReleaseDC(hWnd, hDC);
-
-    SelectObject(hMemDC, GetStockObject(DC_BRUSH));
-    SelectObject(hMemDC, GetStockObject(DC_PEN));
-
-    ModelSphere();
-
-    SetTimer(hWnd, 15,  30, NULL);
-    return 0;
   case WM_GETMINMAXINFO:
     minmax = (MINMAXINFO *)lParam;
     minmax->ptMaxTrackSize.y =
       GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) * 2 + 500;
     return 0;
+  case WM_CREATE:
+    DI6_RndInit(hWnd);
+
+    DI6_RndPrimCreate(&Pr, 3, 3);
+
+    /*Pr.I[0] = 0;
+    Pr.I[1] = 1;
+    Pr.I[2] = 2;
+
+    Pr.V[0].p = VecSet(0, 0, 0);
+    Pr.V[1].p = VecSet(0, 1, 0);
+    Pr.V[2].p = VecSet(1, 0, 0);*/
+
+    DI6_RndPrimLoad(&Pr, "square.obj");
+
+
+    
+    SetTimer(hWnd, 15,  30, NULL);
+    return 0;
   case WM_SIZE:
-    w = LOWORD(lParam);
-    h = HIWORD(lParam);
-
-    if (hBm != NULL)
-      DeleteObject(hBm);
-
-    hDC = GetDC(hWnd);
-    hBm = CreateCompatibleBitmap(hDC, w, h);
-    ReleaseDC(hWnd, hDC);
-
-    SelectObject(hMemDC, hBm);
-
-    SendMessage(hWnd, WM_TIMER, 0, 0);
+    DI6_RndResize(LOWORD(lParam), HIWORD(lParam));
 
     return 0;
   case WM_TIMER:
-    SetDCBrushColor(hMemDC, RGB(255, 255, 255));
-    Rectangle(hMemDC, 0, 0, w, h);
+    DI6_RndStart();
+    
+    t = (DBL)clock() / CLOCKS_PER_SEC;
 
-    DrawSphere(hMemDC, w, h, w / 2, h, (w < h ? w / 4 : h / 4));
+    DI6_RndCamSet(VecSet(5, 2, 4), VecSet(0, 0, 0), VecSet(0, 1, 0));
 
-    InvalidateRect(hWnd, NULL, TRUE);
+    DI6_RndPrimDraw(&Pr, MatrTranslate(VecSet(0, 0, 0)));
+    //DI6_RndPrimDraw(&Pr, MatrRotateX(0));
+
+    DI6_RndEnd();
+                                              
+    InvalidateRect(hWnd, NULL, FALSE);
+
+    SendMessage(hWnd, WM_PAINT, 0, 0);
 
     return 0;
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    BitBlt(hDC, 0, 0, w, h, hMemDC, 0, 0, SRCCOPY);
+    DI6_RndCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0;
   case WM_KEYDOWN:
@@ -137,12 +136,13 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
     return 0;
   case WM_DESTROY:
-    DeleteObject(hBm);
-    DeleteDC(hMemDC);
+    DI6_RndClose();
 
     PostQuitMessage(0);
-    KillTimer(hWnd, 15);
-    return 0;
+    KillTimer(DI6_hWndRndFrame, 15);
+
+    DI6_RndPrimFree(&Pr);
+    return 0;          
   }
 
   return DefWindowProc(hWnd, Msg, wParam, lParam);
@@ -153,7 +153,7 @@ VOID FlipFullScreen( HWND hWnd )
 {
   static BOOL IsFullScreen = FALSE;
   static RECT SaveRC;
-
+                                            
   if (IsFullScreen)
   {
     /* Restore window size and position */
@@ -186,115 +186,5 @@ VOID FlipFullScreen( HWND hWnd )
       rc.right - rc.left, rc.bottom - rc.top, SWP_NOOWNERZORDER);
   }
 } /* End of 'FlipFullScreen' function */
-
-/* Modeling a unit sphere
- * ARGUMENTS:
- *   None;
- * RETURNS:
- *   None;
- */
-VOID ModelSphere()
-{
-  INT i, j;
-  DBL f = 0, t = 0, d = PI / p;
-  DBL sint, cost;
-
-  for (i = 0; i <= p; i++)
-  { 
-    sint = sin(t);
-    cost = cos(t);
-
-    for (j = 0; j < 2 * p; j++)
-    {
-      f += d;
-
-      m[i][j] = VecSet(sint * sin(f), cost, sint * cos(f));
-    }
-
-    t += d;
-  }
-}
-
-/* Drawing of sphere
- * ARGUMENTS:
- *   - handle of paint contest:
- *       HDC hDC;
- *   - coordinates of center of the sphere:
- *       INT x, INT y;
- *   - radius of the sphere:
- *       INT r;
- * RETURNS:
- *   None.
- */
-VOID DrawSphere( HDC hDC, INT w, INT h, INT x, INT y, INT r)
-{
-  INT i, j, k;
-  POINT pts[p + 1][2 * p];
-  DBL sq = 0.0, ProjDist = 1, ProjW = 1, ProjH = 1;
-  DBL t = (DBL)clock() / CLOCKS_PER_SEC;
-  VEC res, pr;
-  MATR m1;
-
-  for (i = 0; i <= p; i++)
-    for (j = 0; j < 2 * p; j++)
-    {
-      m1 = MatrMulMatr(MatrView(VecSet(0, 5, 5), VecSet(0, 5, 0), VecSet(0, 1, 0)), MatrFrustum(-5, 5, -5, 5, 1, 50));
-      //m1 = MatrMulMatr(m1, MatrMulMatr(MatrTranslate(VecSet(0, 0 * -fabs(sin(t)) / 2, 0)), MatrRotateX(90 * t)));
-
-      m1 = MatrMulMatr(m1, MatrRotateX(5 * t));
-
-      res = VecMulMatr4x4(m[i][j], m1);
-
-      pr.x = res.x * ProjDist / (-res.z);
-      pr.y = res.y * ProjDist / (-res.z);
-
-      pts[i][j].x = (LONG)(x + (w / ProjW) * pr.x + ProjW / 2);
-      pts[i][j].y = (LONG)(y + ProjH / 2 - (h / ProjH) * pr.y);
-
-    }
-
-  for (i = 0; i < p; i++)
-  {
-    POINT pnts[4];
-
-    for (j = 0; j < 2 * p - 1; j++)
-    {
-      //SetPixel(hDC, pts[i][j].x, pts[i][j].y, RGB(0, 0, 0));
-
-      pnts[0] = pts[i][j];
-      pnts[1] = pts[i][j + 1];
-      pnts[2] = pts[i + 1][j + 1];
-      pnts[3] = pts[i + 1][j];
-
-      for (k = 0; k < 4; k++)
-        sq += (pnts[k].x - pnts[(k + 1) % 4].x) * (pnts[k].y + pnts[(k + 1) % 4].y);
-
-      //if (sq > 0)
-      //{
-        SetDCPenColor(hDC, RGB(0, 0, 0));
-        Polygon(hDC, pnts, 4);
-      //}
-      /*else
-      {
-        SetDCPenColor(hDC, RGB(200, 200, 200));
-        Polygon(hDC, pnts, 4);
-      }*/
-    }
-
-    pnts[0] = pts[i][2 * p - 1];
-    pnts[1] = pts[i][0];
-    pnts[2] = pts[0][0];
-    pnts[3] = pts[0][2 * p - 1];
-
-    for (k = 0; k < 4; k++)
-      sq += (pnts[k].x - pnts[(k + 1) % 4].x) * (pnts[k].y + pnts[(k + 1) % 4].y);
-
-    //if (sq > 0)
-    //{
-      SetDCPenColor(hDC, RGB(0, 0, 0));
-      Polygon(hDC, pnts, 4);
-    //}
-  }
-} /* End of 'DrawSphere' function */
 
 /* End of 'MAIN.C' file */

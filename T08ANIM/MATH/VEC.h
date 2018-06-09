@@ -1,10 +1,9 @@
 /* FILE NAME: VEC.H
  * PROGRAMMER: DI6
- * DATE: 07.06.2018
- * PURPOSE: Definitions of vectors and matrixes.
+ * DATE: 09.06.2018
+ * PURPOSE: Definitions of vectors and matrices.
  */
 
-#include <windows.h>
 #include <math.h>
 
 #define PI 3.14159265358979323846
@@ -32,8 +31,10 @@ static MATR UnitMatrix =
   }
 };
 
-__inline VOID ModelSphere();
-__inline VOID DrawSphere( HDC hDC, INT w, INT h,INT x, INT y, INT r);
+__inline MATR MatrIdentity( VOID )
+{
+  return UnitMatrix;
+}
 
 __inline VEC VecSet( DBL x, DBL y, DBL z )
 {
@@ -98,7 +99,7 @@ __inline VEC VecNormalize( VEC v )
 
 __inline MATR MatrTranslate( VEC t )
 {
-  MATR r = UnitMatrix;
+  MATR r = MatrIdentity();
 
   r.M[3][0] = t.x;
   r.M[3][1] = t.y;
@@ -109,7 +110,7 @@ __inline MATR MatrTranslate( VEC t )
 
 __inline MATR MatrScale( VEC s )
 {
-  MATR r = UnitMatrix;
+  MATR r = MatrIdentity();
 
   r.M[0][0] = s.x;
   r.M[1][1] = s.y;
@@ -121,7 +122,7 @@ __inline MATR MatrScale( VEC s )
 __inline MATR MatrRotateX( DBL AngleInDegree )
 {
   DBL a = D2R(AngleInDegree), co = cos(a), si = sin(a);
-  MATR r = UnitMatrix;
+  MATR r = MatrIdentity();
 
   r.M[1][1] = co;
   r.M[1][2] = si;
@@ -134,7 +135,7 @@ __inline MATR MatrRotateX( DBL AngleInDegree )
 __inline MATR MatrRotateY( DBL AngleInDegree )
 {
   DBL a = D2R(AngleInDegree), co = cos(a), si = sin(a);
-  MATR r = UnitMatrix;
+  MATR r = MatrIdentity();
 
   r.M[0][0] = co;
   r.M[2][0] = si;
@@ -147,7 +148,7 @@ __inline MATR MatrRotateY( DBL AngleInDegree )
 __inline MATR MatrRotateZ( DBL AngleInDegree )
 {
   DBL a = D2R(AngleInDegree), co = cos(a), si = sin(a);
-  MATR r = UnitMatrix;
+  MATR r = MatrIdentity();
 
   r.M[0][0] = co;
   r.M[0][1] = si;
@@ -318,3 +319,5 @@ __inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
 
   return m;
 }
+
+/* End of 'VEC.H' file */
