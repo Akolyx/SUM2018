@@ -4,7 +4,7 @@
  * PURPOSE: Functions to work with camera and projection.
  */
 
-#include "rnd.h"
+#include "../anim.h"
 
 DBL DI6_RndProjSize = 0.1, DI6_RndProjDist = 0.1, DI6_RndProjFarClip = 300;
 
@@ -15,10 +15,10 @@ VOID DI6_RndProjSet( VOID )
   DBL ratio_x, ratio_y;
 
   ratio_x = ratio_y = DI6_RndProjSize / 2;
-  if (DI6_RndFrameW > DI6_RndFrameH) 
-    ratio_x *= (DBL)DI6_RndFrameW / DI6_RndFrameH;
+  if (DI6_Anim.w > DI6_Anim.h) 
+    ratio_x *= (DBL)DI6_Anim.w / DI6_Anim.h;
   else
-    ratio_y *= (DBL)DI6_RndFrameH / DI6_RndFrameW;
+    ratio_y *= (DBL)DI6_Anim.h / DI6_Anim.w;
 
   DI6_RndMatrProj = MatrFrustum(-ratio_x, ratio_x, -ratio_y, ratio_y, DI6_RndProjDist, DI6_RndProjFarClip);
   DI6_RndMatrVP = MatrMulMatr(DI6_RndMatrView, DI6_RndMatrProj);

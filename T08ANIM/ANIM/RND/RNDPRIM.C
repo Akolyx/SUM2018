@@ -4,7 +4,7 @@
  * PURPOSE: Stuff to work with primitives.
  */
 
-#include "rnd.h"
+#include "../anim.h"
 #include <stdio.h>
 
 BOOL DI6_RndPrimCreate( di6PRIM *Pr, INT NoofV, INT NoofI )
@@ -13,7 +13,7 @@ BOOL DI6_RndPrimCreate( di6PRIM *Pr, INT NoofV, INT NoofI )
 
   memset(Pr, 0, sizeof(di6PRIM));
 
-  size = sizeof(di6VERTEX) * NoofV + sizeof(INT) * NoofI;
+  size = sizeof(di6VERTEX) * NoofV + sizeof(INT) * 3 * NoofI;
 
   Pr->V = malloc(size);
   if (Pr->V == NULL)
@@ -53,18 +53,18 @@ VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
   {
     VEC p = VecMulMatr4x4(Pr->V[i].p, M);
 
-    pnts[i].x = (LONG)((p.x + 1) * DI6_RndFrameW / 2);
-    pnts[i].y = (LONG)((-p.y + 1) * DI6_RndFrameH / 2);
+    pnts[i].x = (LONG)((p.x + 1) * DI6_Anim.w / 2);
+    pnts[i].y = (LONG)((-p.y + 1) * DI6_Anim.h / 2);
   }
 
-  for (i = 0; i < Pr->NumOfI; i += 3)
+  for (i = 0; i < Pr->NumOfI; i++)
   {
     POINT p[3];
 
-    p[0] = pnts[Pr->I[i]];
-    p[1] = pnts[Pr->I[i + 1]];
-    p[2] = pnts[Pr->I[i + 2]];
-    Polygon(DI6_hDCRndFrame, p, 3);
+    p[0] = pnts[Pr->I[3 * i]];
+    p[1] = pnts[Pr->I[3 * i + 1]];
+    p[2] = pnts[Pr->I[3 * i + 2]];
+    Polygon(DI6_Anim.hDC, p, 3);
   }
 
   free(pnts);

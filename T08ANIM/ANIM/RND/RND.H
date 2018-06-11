@@ -24,10 +24,6 @@ typedef struct tagdi6PRIM
 } di6PRIM;
 
 /* Double buffering */
-extern HWND DI6_hWndRndFrame;
-extern HDC DI6_hDCRndFrame;
-extern HBITMAP DI6_hBmRndFrame;
-extern INT DI6_RndFrameW, DI6_RndFrameH;
 
 VOID DI6_RndInit( HWND hWnd );
 VOID DI6_RndClose( VOID );

@@ -10,6 +10,7 @@
 #define D2R(A) ((A) * (PI / 180))
 
 typedef DOUBLE DBL;
+typedef FLOAT FLT;
 
 typedef struct tagVEC
 {

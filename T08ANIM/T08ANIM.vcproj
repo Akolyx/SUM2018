@@ -186,7 +186,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\MATH\VEC.h"
+					RelativePath=".\MATH\VEC.H"
 					>
 				</File>
 			</Filter>
@@ -205,6 +205,22 @@
 			<Filter
 				Name="Animation"
 				>
+				<File
+					RelativePath=".\ANIM\ANIM.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\ANIM.H"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNIT.C"
+					>
+				</File>
+				<File
+					RelativePath=".\UNIT.H"
+					>
+				</File>
 				<Filter
 					Name="Rendering"
 					>
@@ -222,6 +238,14 @@
 					</File>
 					<File
 						RelativePath=".\ANIM\RND\RNDPRIM.C"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Unit samples"
+					>
+					<File
+						RelativePath=".\ANIM\UNITS\U_COW.C"
 						>
 					</File>
 				</Filter>

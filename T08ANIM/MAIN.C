@@ -1,11 +1,10 @@
 /* FILE NAME: MAIN.C
  * PROGRAMMER: DI6
- * DATE: 09.06.2018
+ * DATE: 11.06.2018
  * PURPOSE: Animation.
  */
 
-#include <time.h>
-#include "anim\rnd\rnd.h"
+#include "unit.h"
 
 /* Main window class name */
 #define WND_CLASS_NAME "My window class"
@@ -19,6 +18,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   HWND hWnd;
   WNDCLASS wc;
   MSG msg;
+
+  INT i;
 
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
@@ -50,6 +51,13 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   ShowWindow(hWnd, SW_SHOWNORMAL);
   UpdateWindow(hWnd);
 
+  SetDbgMemHooks();
+
+  /* Adding units */
+  for (i = 1; i < 15; i++)
+    DI6_AnimUnitAdd(DI6_UnitCreateCow());
+
+  /* Message cycle */
   while (GetMessage(&msg, NULL, 0, 0))
   {
     TranslateMessage(&msg);
@@ -59,15 +67,23 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   return 0;
 } /* End of 'WinMain' function */
 
+/* Window response function
+ * ARGUMENTS:
+ *   - window handle
+ *       HWND hWnd;
+ *   - constant representing a message:
+ *       UINT Msg;
+ *   - w and l parameters:
+ *       WPARAM wParam;
+ *       LPARAM lParam;
+ * RETURNS:
+ *   (LRESULT)
+ */
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   HDC hDC;
   PAINTSTRUCT ps;
   MINMAXINFO *minmax;
-
-  double t;
-
-  static di6PRIM Pr;
 
   switch (Msg)
   {
@@ -77,39 +93,16 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
       GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) * 2 + 500;
     return 0;
   case WM_CREATE:
-    DI6_RndInit(hWnd);
+    DI6_AnimInit(hWnd);            
 
-    DI6_RndPrimCreate(&Pr, 3, 3);
-
-    /*Pr.I[0] = 0;
-    Pr.I[1] = 1;
-    Pr.I[2] = 2;
-
-    Pr.V[0].p = VecSet(0, 0, 0);
-    Pr.V[1].p = VecSet(0, 1, 0);
-    Pr.V[2].p = VecSet(1, 0, 0);*/
-
-    DI6_RndPrimLoad(&Pr, "square.obj");
-
-
-    
     SetTimer(hWnd, 15,  30, NULL);
     return 0;
-  case WM_SIZE:
-    DI6_RndResize(LOWORD(lParam), HIWORD(lParam));
+  case WM_SIZE:              
+    DI6_AnimResize(LOWORD(lParam), HIWORD(lParam));
 
     return 0;
   case WM_TIMER:
-    DI6_RndStart();
-    
-    t = (DBL)clock() / CLOCKS_PER_SEC;
-
-    DI6_RndCamSet(VecSet(5, 2, 4), VecSet(0, 0, 0), VecSet(0, 1, 0));
-
-    DI6_RndPrimDraw(&Pr, MatrTranslate(VecSet(0, 0, 0)));
-    //DI6_RndPrimDraw(&Pr, MatrRotateX(0));
-
-    DI6_RndEnd();
+    DI6_AnimRender();
                                               
     InvalidateRect(hWnd, NULL, FALSE);
 
@@ -118,12 +111,12 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    DI6_RndCopyFrame(hDC);
+    DI6_AnimCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0;
   case WM_KEYDOWN:
     if (wParam == 'F')
-      FlipFullScreen(hWnd);
+      DI6_AnimFlipFullScreen(hWnd);
     else if (wParam == VK_ESCAPE)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
 
@@ -136,55 +129,14 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
 
     return 0;
   case WM_DESTROY:
-    DI6_RndClose();
+    DI6_AnimClose();
 
     PostQuitMessage(0);
-    KillTimer(DI6_hWndRndFrame, 15);
-
-    DI6_RndPrimFree(&Pr);
+    KillTimer(hWnd, 15);
     return 0;          
   }
 
   return DefWindowProc(hWnd, Msg, wParam, lParam);
 } /* End of 'MyWindowFunc' function */
-
-/* Enabling switching between window and fullscreen modes */
-VOID FlipFullScreen( HWND hWnd )
-{
-  static BOOL IsFullScreen = FALSE;
-  static RECT SaveRC;
-                                            
-  if (IsFullScreen)
-  {
-    /* Restore window size and position */
-    IsFullScreen = FALSE;
-
-    SetWindowPos(hWnd, HWND_TOP, SaveRC.left, SaveRC.top,
-      SaveRC.right - SaveRC.left, SaveRC.bottom - SaveRC.top, SWP_NOOWNERZORDER);
-  }
-  else
-  {
-    RECT rc;
-    HMONITOR hMon;
-    MONITORINFOEX moninfo;
-
-    /* Go to full screen mode */
-    IsFullScreen = TRUE;
-
-    /* Save window position and size */
-    GetWindowRect(hWnd, &SaveRC);
-
-    /* Obtain closest monitor info */
-    hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-    moninfo.cbSize = sizeof(MONITORINFOEX);
-    GetMonitorInfo(hMon, (MONITORINFO *)&moninfo);
-
-    rc = moninfo.rcMonitor;
-    AdjustWindowRect(&rc, GetWindowLong(hWnd, GWL_STYLE), FALSE);
-
-    SetWindowPos(hWnd, HWND_TOP, rc.left, rc.top,
-      rc.right - rc.left, rc.bottom - rc.top, SWP_NOOWNERZORDER);
-  }
-} /* End of 'FlipFullScreen' function */
 
 /* End of 'MAIN.C' file */
