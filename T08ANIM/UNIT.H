@@ -7,3 +7,4 @@
 #include "anim\anim.h"
 
 di6UNIT * DI6_UnitCreateCow( VOID );
+di6UNIT * DI6_UnitCreateControl( VOID );

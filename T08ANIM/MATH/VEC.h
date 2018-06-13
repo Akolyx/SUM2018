@@ -6,22 +6,194 @@
 
 #include <math.h>
 
+/* Definitions of pi constant and function translating angle from degrees to radians */
 #define PI 3.14159265358979323846
 #define D2R(A) ((A) * (PI / 180))
 
+/* Shorter names of two crucial types */
 typedef DOUBLE DBL;
 typedef FLOAT FLT;
 
+/* Structure representing a vector */
 typedef struct tagVEC
 {
-  DBL x, y, z;
+  DBL x, y, z; /* Three coordinates */
 } VEC;
 
+/* Structure representing a matrix 4x4 */
 typedef struct tagMATR
 {
-  DBL M[4][4];
+  DBL M[4][4]; /* Two-dimensional array of matrix elements */
 } MATR;
 
+/***
+* Functions to work with vectors
+***/
+
+/* Constructing a vector with given coordinates
+ * ARGUMENTS:
+ *   - coordinates:
+ *       DBL x, y, z;
+ * RETURNS:
+ *   (Vec) - vector with given coordinates;
+ */
+__inline VEC VecSet( DBL x, DBL y, DBL z )
+{
+  VEC v = {x, y, z};
+  return v;
+} /* End of 'VecSet' function */
+
+/* Constructing a vector with three coordinates equal to given number
+ * ARGUMENTS:
+ *   - the number:
+ *       DBL a;
+ * RETURNS:
+ *   (Vec) - vector with x = y = z = a;
+ */
+__inline VEC VecSetEqual( DBL a )
+{
+  VEC v = {a, a, a};
+  return v;
+} /* End of 'VecSetEqual' function */
+
+/* Addition of two vectors function
+ * ARGUMENTS:
+ *   - vectors:
+ *       VEC v1, v2;
+ * RETURNS:
+ *   (VEC) - vector equal to v1 + v2;
+ */
+__inline VEC VecAddVec( VEC v1, VEC v2 )
+{
+  return VecSet(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+} /* End of 'VecAddVec' function */
+
+/* Subtraction of two vectors function
+ * ARGUMENTS:
+ *   - vectors:
+ *       VEC v1, v2;
+ * RETURNS:
+ *   (VEC) - vector equal to v1 - v2;
+ */
+__inline VEC VecSubVec( VEC v1, VEC v2 )
+{
+  return VecSet(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+} /* End of 'VecSubVec' function */
+
+/* Multiplication vector to number function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ *   - number:
+ *       DBL n;
+ * RETURNS:
+ *   (VEC) - vector equal to v * n;
+ */
+__inline VEC VecMulNum( VEC v, DBL n )
+{
+  return VecSet(v.x * n, v.y * n, v.z * n);
+} /* End of 'VecMulNum' function */
+
+/* Division vector to number function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ *   - number:
+ *       DBL n;
+ * RETURNS:
+ *   (VEC) - vector equal to v / n;
+ */
+__inline VEC VecDivNum( VEC v, DBL n )
+{
+  return VecSet(v.x / n, v.y / n, v.z / n);
+} /* End of 'VecDivNum' function */
+
+/* Negative vector function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ * RETURNS:
+ *   (VEC) - vector equal to -v;
+ */
+__inline VEC VecNeg( VEC v )
+{
+  return VecSet(-v.x, -v.y, -v.z);
+} /* End of 'VecNeg' function */
+
+/* Dot production of two vectors function
+ * ARGUMENTS:
+ *   - vectors:
+ *       VEC v1, v2;
+ * RETURNS:
+ *   (DBL) - vector equal to dot production of v1 and v2;
+ */
+__inline DBL VecDotVec( VEC v1, VEC v2 )
+{
+  return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+} /* End of 'VecDotVec' function */
+
+/* Cross production of two vectors function
+ * ARGUMENTS:
+ *   - vectors:
+ *       VEC v1, v2;
+ * RETURNS:
+ *   (VEC) - vector equal to cross production of v1 and v2;
+ */
+__inline VEC VecCrossVec( VEC v1, VEC v2 )
+{
+  return VecSet(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
+} /* End of 'VecCrossVec' function */
+
+/* Returning a square of vector length function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ * RETURNS:
+ *   (DBL) - number equal to the square of vector length;
+ */
+__inline DBL VecLen2( VEC v )
+{
+  return v.x * v.x + v.y * v.y + v.z * v.z;
+} /* End of 'VecLen2' function */
+
+/* Returning a vector length function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ * RETURNS:
+ *   (DBL) - number equal to vector length;
+ */
+__inline DBL VecLen( VEC v )
+{
+  return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+} /* End of 'VecLen' function */
+
+/* Vector normalization function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ * RETURNS:
+ *   (VEC) - vector equal to v / (length of v);
+ */
+__inline VEC VecNormalize( VEC v )
+{
+  DBL len = VecLen(v);
+
+  if (len == 0 || len == 1)
+    return v;
+
+  return VecDivNum(v, len);
+} /* End of 'VecNormalize' function */
+
+/***
+* End of vector functions block
+***/
+
+/***
+* Functions to work with matrices
+***/
+
+/* Unit matrix */
 static MATR UnitMatrix = 
 {
   {
@@ -32,72 +204,24 @@ static MATR UnitMatrix =
   }
 };
 
+/* Returning unit matrix function
+ * ARGUMENTS:
+ *   None
+ * RETURNS:
+ *   (MATR) - unit matrix;
+ */
 __inline MATR MatrIdentity( VOID )
 {
   return UnitMatrix;
-}
+} /* End of 'MatrIdentity' function */
 
-__inline VEC VecSet( DBL x, DBL y, DBL z )
-{
-  VEC v = {x, y, z};
-  return v;
-}
-
-__inline VEC VecAddVec( VEC v1, VEC v2 )
-{
-  return VecSet(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
-}
-
-__inline VEC VecSubVec( VEC v1, VEC v2 )
-{
-  return VecSet(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
-}
-
-__inline VEC VecMulNum( VEC v1, DBL n )
-{
-  return VecSet(v1.x * n, v1.y * n, v1.z * n);
-}
-
-__inline VEC VecDivNum( VEC v1, DBL n )
-{
-  return VecSet(v1.x / n, v1.y / n, v1.z / n);
-}
-
-__inline VEC VecNeg( VEC v )
-{
-  return VecSet(-v.x, -v.y, -v.z);
-}
-
-__inline DBL VecDotVec( VEC v1, VEC v2 )
-{
-  return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-}
-
-__inline VEC VecCrossVec( VEC v1, VEC v2 )
-{
-  return VecSet(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);
-}
-
-__inline DBL VecLen2( VEC v )
-{
-  return v.x * v.x + v.y * v.y + v.z * v.z;
-}
-
-__inline DBL VecLen( VEC v )
-{
-  return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-__inline VEC VecNormalize( VEC v )
-{
-  DBL len = VecLen(v);
-
-  if (len == 0 || len == 1)
-    return v;
-
-  return VecDivNum(v, len);
-}
-
+/* Returning matrix of translation function
+ * ARGUMENTS:
+ *   - vector on which the translation is going to happen:
+ *       VEC t;
+ * RETURNS:
+ *   (MATR) - matrix to translate on the given vector;
+ */
 __inline MATR MatrTranslate( VEC t )
 {
   MATR r = MatrIdentity();
@@ -107,8 +231,15 @@ __inline MATR MatrTranslate( VEC t )
   r.M[3][2] = t.z;
 
   return r;
-}
+} /* End of 'MatrTranslate' function */
 
+/* Returning matrix of scaling function
+ * ARGUMENTS:
+ *   - vector on which the scaling is going to happen:
+ *       VEC s;
+ * RETURNS:
+ *   (MATR) - matrix to scale on the given vector;
+ */
 __inline MATR MatrScale( VEC s )
 {
   MATR r = MatrIdentity();
@@ -118,8 +249,15 @@ __inline MATR MatrScale( VEC s )
   r.M[2][2] = s.z;
 
   return r;
-}
+} /* End of 'MatrScale' function */
 
+/* Returning matrix of rotation along X axis function
+ * ARGUMENTS:
+ *   - angle on which the rotation is going to happen:
+ *       DBL AngleInDegree;
+ * RETURNS:
+ *   (MATR) - matrix to rotate on the given angle along X axis;
+ */
 __inline MATR MatrRotateX( DBL AngleInDegree )
 {
   DBL a = D2R(AngleInDegree), co = cos(a), si = sin(a);
@@ -131,8 +269,15 @@ __inline MATR MatrRotateX( DBL AngleInDegree )
   r.M[2][2] = co;
 
   return r;
-}
+} /* End of 'MatrRotateX' function */
 
+/* Returning matrix of rotation along Y axis function
+ * ARGUMENTS:
+ *   - angle on which the rotation is going to happen:
+ *       DBL AngleInDegree;
+ * RETURNS:
+ *   (MATR) - matrix to rotate on the given angle along Y axis;
+ */
 __inline MATR MatrRotateY( DBL AngleInDegree )
 {
   DBL a = D2R(AngleInDegree), co = cos(a), si = sin(a);
@@ -144,8 +289,15 @@ __inline MATR MatrRotateY( DBL AngleInDegree )
   r.M[2][2] = co;
 
   return r;
-}
+} /* End of 'MatrRotateY' function */
 
+/* Returning matrix of rotation along Z axis function
+ * ARGUMENTS:
+ *   - angle on which the rotation is going to happen:
+ *       DBL AngleInDegree;
+ * RETURNS:
+ *   (MATR) - matrix to rotate on the given angle along Z axis;
+ */
 __inline MATR MatrRotateZ( DBL AngleInDegree )
 {
   DBL a = D2R(AngleInDegree), co = cos(a), si = sin(a);
@@ -157,8 +309,17 @@ __inline MATR MatrRotateZ( DBL AngleInDegree )
   r.M[1][1] = co;
 
   return r;
-}
+} /* End of  'MatrRotateX' function */
 
+/* Returning matrix of rotation along given vector function
+ * ARGUMENTS:
+ *   - angle on which the rotation is going to happen:
+ *       DBL AngleInDegree;
+ *   - vector
+ *       VEC r;
+ * RETURNS:
+ *   (MATR) - matrix to rotate on the given angle along given vector;
+ */
 __inline MATR MatrRotate( DBL AngleInDegree, VEC r )
 {
   DBL a = D2R(AngleInDegree), si = sin(a), co = cos(a);
@@ -176,8 +337,15 @@ __inline MATR MatrRotate( DBL AngleInDegree, VEC r )
   };
 
   return m;
-}
+} /* End of 'MatrRotate' functions */
 
+/* Returning production of two matrices function
+ * ARGUMENTS:
+ *   - matrices:
+ *       MATR m1, m2;
+ * RETURNS:
+ *   (MATR) - matrix equal to m1 * m2;
+ */
 __inline MATR MatrMulMatr( MATR m1, MATR m2 )
 {
   INT i, j, k;
@@ -189,7 +357,15 @@ __inline MATR MatrMulMatr( MATR m1, MATR m2 )
         r.M[i][j] += m1.M[i][k] * m2.M[k][j];
 
   return r;
-}
+} /* End of 'MatrMulMatr' function */
+
+/* Returning transposed matrix function
+ * ARGUMENTS:
+ *   - matrix:
+ *       MATR m;
+ * RETURNS:
+ *   (MATR) - matrix equal to transposed m;
+ */
 __inline MATR MatrTranspose( MATR m )
 {
   INT i, j;
@@ -200,14 +376,27 @@ __inline MATR MatrTranspose( MATR m )
       r.M[i][j] = m.M[j][i];
 
   return r;
-}
+} /* End of 'MatrTranspose' function */
 
-
+/* Returning determinant of matrix 3x3 function
+ * ARGUMENTS:
+ *   - elements of the matrix:
+ *       DBL a11, a12, a13, a21, a22, a23, a31, a32, a33;
+ * RETURNS:
+ *   (DBL) - determinant of the matrix constructed of given elements;
+ */
 __inline DBL MatrDeterm3x3( DBL a11, DBL a12, DBL a13, DBL a21, DBL a22, DBL a23, DBL a31, DBL a32, DBL a33 )
 {
   return a11 * a22 * a33 - a11 * a23 * a32 - a12 * a21 * a33 + a12 * a23 * a31 + a13 * a21 * a32 - a13 * a22 * a31;
-}
+} /* End of 'MatrDeterm3x3' function */
 
+/* Returning determinant of matrix 4x4 function
+ * ARGUMENTS:
+ *   - matrix:
+ *       MATR m;
+ * RETURNS:
+ *   (DBL) - determinant of the matrix m;
+ */
 __inline DBL MatrDeterm( MATR m )
 {
   return
@@ -215,8 +404,15 @@ __inline DBL MatrDeterm( MATR m )
     m.M[0][1] * MatrDeterm3x3(m.M[1][0], m.M[1][2], m.M[1][3], m.M[2][0], m.M[2][2], m.M[2][3], m.M[3][0], m.M[3][2], m.M[3][3]) +
     m.M[0][2] * MatrDeterm3x3(m.M[1][0], m.M[1][1], m.M[1][3], m.M[2][0], m.M[2][1], m.M[2][3], m.M[3][0], m.M[3][1], m.M[3][3]) -
     m.M[0][3] * MatrDeterm3x3(m.M[1][0], m.M[1][1], m.M[1][2], m.M[2][0], m.M[2][1], m.M[2][2], m.M[3][0], m.M[3][1], m.M[3][2]);
-}
+} /* End of 'MatrDeterm' function */
 
+/* Returning inversed matrix function
+ * ARGUMENTS:
+ *   - matrix:
+ *       MATR m;
+ * RETURNS:
+ *   (MATR) - matrix inversed to m;
+ */
 __inline MATR MatrInverse( MATR m )
 {
   INT i, j;
@@ -226,7 +422,6 @@ __inline MATR MatrInverse( MATR m )
   if (det == 0)
     return UnitMatrix;
 
-  /* строим присоединенную матрицу */
   /* build adjoint matrix */
   r.M[0][0] = MatrDeterm3x3(m.M[1][1], m.M[1][2], m.M[1][3], m.M[2][1], m.M[2][2], m.M[2][3], m.M[3][1], m.M[3][2], m.M[3][3]);
   r.M[1][0] = -MatrDeterm3x3(m.M[1][0], m.M[1][2], m.M[1][3], m.M[2][0], m.M[2][2], m.M[2][3], m.M[3][0], m.M[3][2], m.M[3][3]);
@@ -245,14 +440,24 @@ __inline MATR MatrInverse( MATR m )
   r.M[2][3] = -MatrDeterm3x3(m.M[0][0], m.M[0][1], m.M[0][3], m.M[1][0], m.M[1][1], m.M[1][3], m.M[2][0], m.M[2][1], m.M[2][3]);
   r.M[3][3] = MatrDeterm3x3(m.M[0][0], m.M[0][1], m.M[0][2], m.M[1][0], m.M[1][1], m.M[1][2], m.M[2][0], m.M[2][1], m.M[2][2]);
 
-  /* делим на определитель */
+  /* division on determinant */
   for (i = 0; i < 4; i++)
    for (j = 0; j < 4; j++)
      r.M[i][j] /= det;
 
   return r;
-}
+} /* End of 'MatrInverse' function */
 
+
+/* Returning a transformed coordinates of related vector function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ *   - transformation matrix:
+ *       MATR m;
+ * RETURNS:
+ *   (VEC) - transformed vector;
+ */
 __inline VEC PointTransform( VEC v, MATR m )
 {
   DBL x = 0, y = 0, z = 0;
@@ -262,8 +467,17 @@ __inline VEC PointTransform( VEC v, MATR m )
   z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2] + m.M[3][2];
 
   return VecSet(x, y, z);
-}
+} /* End of 'PointTransform' function */
 
+/* Returning a transformed coordinates of free vector function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ *   - transformation matrix:
+ *       MATR m;
+ * RETURNS:
+ *   (VEC) - transformed vector;
+ */
 __inline VEC VectorTransform( VEC v, MATR m )
 {
   DBL x = 0, y = 0, z = 0;
@@ -273,8 +487,17 @@ __inline VEC VectorTransform( VEC v, MATR m )
   z = v.x * m.M[0][2] + v.y * m.M[1][2] + v.z * m.M[2][2];
 
   return VecSet(x, y, z);
-}
+} /* End of 'VectorTransform' function */
 
+/* Returning a transformed coordinates of a vector function
+ * ARGUMENTS:
+ *   - vector:
+ *       VEC v;
+ *   - transformation matrix:
+ *       MATR m;
+ * RETURNS:
+ *   (VEC) - transformed vector;
+ */
 __inline VEC VecMulMatr4x4( VEC v, MATR m )
 {
   DBL x, y, z, w;
@@ -285,8 +508,15 @@ __inline VEC VecMulMatr4x4( VEC v, MATR m )
   w = v.x * m.M[0][3] + v.y * m.M[1][3] + v.z * m.M[2][3] + m.M[3][3];
 
   return VecSet(x / w, y / w, z / w);
-}
+} /* End of 'VecMulMatr4x4' function */
 
+/* Returning a matrix of view function
+ * ARGUMENTS:
+ *   - vectors of our location, point at which we see and approximate up direction:
+ *       VEC loc, at, up1;
+ * RETURNS:
+ *   (MATR) - matrix to transform to camera view;
+ */
 __inline MATR MatrView( VEC loc, VEC at, VEC up1 )
 {
   VEC dir = VecNormalize(VecSubVec(at, loc)),
@@ -304,8 +534,15 @@ __inline MATR MatrView( VEC loc, VEC at, VEC up1 )
   };
 
   return m;
-}
+} /* End of 'MatrView' function */
 
+/* Returning a matrix transforming scene to normalized cube (-1 ... 1) function
+ * ARGUMENTS:
+ *   - coordinates of view frustum:
+ *       DBL l, r, b, t, n, f;
+ * RETURNS:
+ *   (MATR) - matrix to transform to normalized cube;
+ */
 __inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
 {
   MATR m = 
@@ -319,6 +556,10 @@ __inline MATR MatrFrustum( DBL l, DBL r, DBL b, DBL t, DBL n, DBL f )
   };
 
   return m;
-}
+} /* End of 'MatrFrustum' function */
+
+/***
+* End of matrix functions block
+***/
 
 /* End of 'VEC.H' file */

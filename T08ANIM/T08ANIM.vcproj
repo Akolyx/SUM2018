@@ -214,6 +214,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ANIM\INPUT.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\TIME.C"
+					>
+				</File>
+				<File
 					RelativePath=".\ANIM\UNIT.C"
 					>
 				</File>
@@ -244,6 +252,10 @@
 				<Filter
 					Name="Unit samples"
 					>
+					<File
+						RelativePath=".\ANIM\UNITS\CONTROL.C"
+						>
+					</File>
 					<File
 						RelativePath=".\ANIM\UNITS\U_COW.C"
 						>

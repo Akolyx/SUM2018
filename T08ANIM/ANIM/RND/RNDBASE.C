@@ -17,7 +17,7 @@ VOID DI6_RndInit( HWND hWnd )
   ReleaseDC(DI6_Anim.hWnd, hDC);
 
   DI6_RndProjSet();
-  DI6_RndCamSet(VecSet(12, 12, 12), VecSet(0, 0, 0), VecSet(0, 1, 0));
+  //DI6_RndCamSet(VecSet(13, 13, 10), VecSet(0, 0, 0), VecSet(0, 1, 0));
 } /* End of 'DI6_RndInit' function */
 
 VOID DI6_RndClose( VOID )
@@ -56,11 +56,12 @@ VOID DI6_RndStart( VOID )
 
   SelectObject(DI6_Anim.hDC, GetStockObject(NULL_BRUSH));
   SelectObject(DI6_Anim.hDC, GetStockObject(DC_PEN));
-  SetDCPenColor(DI6_Anim.hDC, RGB(255, 255, 255));
+  SetDCPenColor(DI6_Anim.hDC, RGB(0, 0, 0));
 } /* End of 'DI6_RndStart' function */
 
 VOID DI6_RndEnd( VOID )
 {
+
 } /* End of 'DI6_RndEnd' function */
 
 VOID DI6_RndCopyFrame( HDC hDC )

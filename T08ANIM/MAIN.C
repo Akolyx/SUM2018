@@ -11,15 +11,14 @@
 
 /* Forward references */
 LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
-void FlipFullScreen( HWND hWnd );
+
+INT DI6_MouseWheel;
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
 {
   HWND hWnd;
   WNDCLASS wc;
   MSG msg;
-
-  INT i;
 
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
@@ -54,8 +53,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   SetDbgMemHooks();
 
   /* Adding units */
-  for (i = 1; i < 15; i++)
-    DI6_AnimUnitAdd(DI6_UnitCreateCow());
+  DI6_AnimUnitAdd(DI6_UnitCreateCow());
+  DI6_AnimUnitAdd(DI6_UnitCreateControl());
 
   /* Message cycle */
   while (GetMessage(&msg, NULL, 0, 0))
@@ -114,11 +113,8 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     DI6_AnimCopyFrame(hDC);
     EndPaint(hWnd, &ps);
     return 0;
-  case WM_KEYDOWN:
-    if (wParam == 'F')
-      DI6_AnimFlipFullScreen(hWnd);
-    else if (wParam == VK_ESCAPE)
-      SendMessage(hWnd, WM_CLOSE, 0, 0);
+  case WM_MOUSEWHEEL:
+    DI6_MouseWheel += (SHORT)HIWORD(wParam) / WHEEL_DELTA;
 
     return 0;
   case WM_ERASEBKGND:

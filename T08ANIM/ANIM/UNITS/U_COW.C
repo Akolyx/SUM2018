@@ -24,7 +24,7 @@ typedef struct
 static VOID DI6_UnitInit( di6UNIT_COW *Uni, di6ANIM *Ani )
 {
   DI6_RndPrimLoad(&Uni->Cow, "cow.obj");
-  Uni->Pos = VecSet(rand() % 15, rand() % 15, rand() % 15);
+  Uni->Pos = VecSet(1, 1, 1);
 } /* End of 'DI6_UnitInit' function */
 
 /* Cow unit inter frame events handle function.
@@ -49,7 +49,7 @@ static VOID DI6_UnitResponse( di6UNIT_COW *Uni, di6ANIM *Ani )
  */
 static VOID DI6_UnitRender( di6UNIT_COW *Uni, di6ANIM *Ani )
 {
-  DI6_RndPrimDraw(&Uni->Cow, MatrMulMatr(MatrScale(VecSet(0.1, 0.1, 0.1)), MatrTranslate(Uni->Pos)));
+  DI6_RndPrimDraw(&Uni->Cow, MatrMulMatr(MatrScale(VecSet(0.4, 0.4, 0.4)), MatrTranslate(Uni->Pos)));
 } /* End of 'DI6_UnitRender' function */
 
 /* Cow unit deinitialization function.

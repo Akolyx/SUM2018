@@ -11,6 +11,7 @@ di6ANIM DI6_Anim;
 VOID DI6_AnimInit( HWND hWnd )
 {
   DI6_RndInit(hWnd);
+  DI6_TimerInit();
 }
 VOID DI6_AnimClose( VOID )
 {
@@ -36,6 +37,10 @@ VOID DI6_AnimRender( VOID )
 {
   INT i;
 
+  DI6_TimerResponse();
+
+  DI6_AnimInputResponse();
+
   for (i = 0; i < DI6_Anim.NumOfUnits; i++)
     DI6_Anim.Units[i]->Response(DI6_Anim.Units[i], &DI6_Anim);
 
@@ -48,14 +53,12 @@ VOID DI6_AnimRender( VOID )
 }
 VOID DI6_AnimUnitAdd( di6UNIT *Uni )
 {
-  if (DI6_Anim.NumOfUnits < di6_MAX_UNITS)
+  if (DI6_Anim.NumOfUnits < DI6_MAX_UNITS)
   {  
     DI6_Anim.Units[DI6_Anim.NumOfUnits++] = Uni;
     Uni->Init(Uni, &DI6_Anim);
   }
 }
-
-
 
 di6UNIT * DI6_AnimUnitCreate( INT Size )
 {
@@ -74,7 +77,7 @@ di6UNIT * DI6_AnimUnitCreate( INT Size )
 } /* End of 'VG4_AnimUnitCreate' function */
 
 /* Enabling switching between window and fullscreen modes */
-VOID DI6_AnimFlipFullScreen( HWND hWnd )
+VOID DI6_AnimFlipFullScreen( VOID )
 {
   static BOOL IsFullScreen = FALSE;
   static RECT SaveRC;
@@ -84,7 +87,7 @@ VOID DI6_AnimFlipFullScreen( HWND hWnd )
     /* Restore window size and position */
     IsFullScreen = FALSE;
 
-    SetWindowPos(hWnd, HWND_TOP, SaveRC.left, SaveRC.top,
+    SetWindowPos(DI6_Anim.hWnd, HWND_TOP, SaveRC.left, SaveRC.top,
       SaveRC.right - SaveRC.left, SaveRC.bottom - SaveRC.top, SWP_NOOWNERZORDER);
   }
   else
@@ -97,65 +100,22 @@ VOID DI6_AnimFlipFullScreen( HWND hWnd )
     IsFullScreen = TRUE;
 
     /* Save window position and size */
-    GetWindowRect(hWnd, &SaveRC);
+    GetWindowRect(DI6_Anim.hWnd, &SaveRC);
 
     /* Obtain closest monitor info */
-    hMon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+    hMon = MonitorFromWindow(DI6_Anim.hWnd, MONITOR_DEFAULTTONEAREST);
     moninfo.cbSize = sizeof(MONITORINFOEX);
     GetMonitorInfo(hMon, (MONITORINFO *)&moninfo);
 
     rc = moninfo.rcMonitor;
-    AdjustWindowRect(&rc, GetWindowLong(hWnd, GWL_STYLE), FALSE);
+    AdjustWindowRect(&rc, GetWindowLong(DI6_Anim.hWnd, GWL_STYLE), FALSE);
 
-    SetWindowPos(hWnd, HWND_TOP, rc.left, rc.top,
+    SetWindowPos(DI6_Anim.hWnd, HWND_TOP, rc.left, rc.top,
       rc.right - rc.left, rc.bottom - rc.top, SWP_NOOWNERZORDER);
   }
 } /* End of 'FlipFullScreen' function */
 
-/* Unit initialization function.
- * ARGUMENTS:
- *   - self-pointer to unit object:
- *       di6UNIT *Uni;
- *   - animation context:
- *       di6ANIM *Ani;
- * RETURNS: None.
- */
-static VOID DI6_UnitInit( di6UNIT *Uni, di6ANIM *Ani )
+VOID DI6_AnimDoExit ( VOID )
 {
-} /* End of 'di6_UnitInit' function */
-
-/* Unit deinitialization function.
- * ARGUMENTS:
- *   - self-pointer to unit object:
- *       di6UNIT *Uni;
- *   - animation context:
- *       di6ANIM *Ani;
- * RETURNS: None.
- */
-static VOID DI6_UnitClose( di6UNIT *Uni, di6ANIM *Ani )
-{
-} /* End of 'di6_UnitClose' function */
-
-/* Unit inter frame events handle function.
- * ARGUMENTS:
- *   - self-pointer to unit object:
- *       di6UNIT *Uni;
- *   - animation context:
- *       di6ANIM *Ani;
- * RETURNS: None.
- */
-static VOID DI6_UnitResponse( di6UNIT *Uni, di6ANIM *Ani )
-{
-} /* End of 'di6_UnitResponse' function */
-
-/* Unit render function.
- * ARGUMENTS:
- *   - self-pointer to unit object:
- *       di6UNIT *Uni;
- *   - animation context:
- *       di6ANIM *Ani;
- * RETURNS: None.
- */
-static VOID DI6_UnitRender( di6UNIT *Uni, di6ANIM *Ani )
-{
-} /* End of 'di6_UnitRender' function */
+  SendMessage(DI6_Anim.hWnd, WM_CLOSE, 0, 0);
+}

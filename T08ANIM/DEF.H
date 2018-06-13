@@ -8,9 +8,10 @@
 #define __DEF_H_
 
 #include <windows.h>
+#include <mmsystem.h>
 #include "math\vec.h"
 
-#pragma warning(disable: 4244 4305)
+#pragma warning(disable: 4244 4305 4028)
 
 /* Debug memory allocation support */
 #ifdef _DEBUG
