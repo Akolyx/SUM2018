@@ -35,8 +35,8 @@ static VOID DI6_UnitInit( di6UNIT_CTRL *Uni, di6ANIM *Ani )
   Uni->CamLoc = VecSet(13, 13, 13);
   Uni->CamAt = VecSetEqual(0);
   Uni->CamUp = VecSet(0, 1, 0);
-  Uni->Speed = 30.0;
-  Uni->AngleSpeed = 10.0;
+  Uni->Speed = 20.0;
+  Uni->AngleSpeed = 100.0;
 
   DI6_RndCamSet(Uni->CamLoc, Uni->CamAt, Uni->CamUp);
 } /* End of 'DI6_UnitInit' function */
@@ -53,6 +53,8 @@ static VOID DI6_UnitResponse( di6UNIT_CTRL *Uni, di6ANIM *Ani )
 {
   CHAR Buf[100];
 
+  VEC dir;
+
   if (Ani->Keyboard.KeysClick['F'])
     DI6_AnimFlipFullScreen();
   else if (Ani->Keyboard.KeysClick[VK_ESCAPE])
@@ -60,7 +62,21 @@ static VOID DI6_UnitResponse( di6UNIT_CTRL *Uni, di6ANIM *Ani )
   else if (Ani->Keyboard.KeysClick['P'] && (Ani->Keyboard.Keys[VK_SHIFT]))
     DI6_AnimTimePause();
 
-  if (Ani->Joystick.ButClick[7])
+  dir = VecSubVec(Uni->CamAt, Uni->CamLoc);
+
+  Uni->CamLoc = VecAddVec(VecMulNum(VecNormalize(dir), 
+    Ani->Time.GlobalDeltaTime * Uni->Speed * (Ani->Keyboard.Keys[VK_UP] - Ani->Keyboard.Keys[VK_DOWN])), Uni->CamLoc);
+
+  Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateY(Ani->Time.GlobalDeltaTime * Uni->AngleSpeed
+                                            * (Ani->Keyboard.Keys[VK_LEFT] - Ani->Keyboard.Keys[VK_RIGHT])));
+
+  Uni->CamLoc = VecAddVec(VecMulNum(VecNormalize(dir), 
+    Ani->Time.GlobalDeltaTime * Uni->Speed * 3 * Ani->Mouse.dz), Uni->CamLoc);
+
+  Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateY(Ani->Time.DeltaTime * Uni->AngleSpeed * 0.1 * -Ani->Mouse.dx));
+  Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateX(Ani->Time.DeltaTime * Uni->AngleSpeed * 0.1 * -Ani->Mouse.dy));
+
+  /*if (Ani->Joystick.ButClick[7])
     DI6_AnimTimePause();
   else if (Ani->Joystick.But[5])
     Uni->CamLoc = VecDivNum(Uni->CamLoc, 1 + Ani->Time.GlobalDeltaTime);
@@ -69,14 +85,9 @@ static VOID DI6_UnitResponse( di6UNIT_CTRL *Uni, di6ANIM *Ani )
   else if (Ani->Joystick.ButClick[6])
     DI6_AnimFlipFullScreen();
 
-  Uni->CamLoc = VecDivNum(Uni->CamLoc, 1 + Ani->Time.GlobalDeltaTime * (Ani->Keyboard.Keys[VK_UP] - Ani->Keyboard.Keys[VK_DOWN]));
-
-  Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateY(Ani->Time.GlobalDeltaTime * Uni->AngleSpeed * 10
-                                            * (Ani->Keyboard.Keys[VK_LEFT] - Ani->Keyboard.Keys[VK_RIGHT])));
-
   Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateY(Ani->Time.DeltaTime * Uni->AngleSpeed * 5 * Ani->Joystick.x));
   Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateX(Ani->Time.DeltaTime * Uni->AngleSpeed * 5 * Ani->Joystick.y));
-  Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateZ(Ani->Time.DeltaTime * Uni->AngleSpeed * 5 * Ani->Joystick.z));
+  Uni->CamLoc = PointTransform(Uni->CamLoc, MatrRotateZ(Ani->Time.DeltaTime * Uni->AngleSpeed * 5 * Ani->Joystick.z));*/
 
   DI6_RndCamSet(Uni->CamLoc, Uni->CamAt, Uni->CamUp);
 
