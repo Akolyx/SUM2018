@@ -9,11 +9,11 @@
 /* Create primitive by vertex and index sizes function.
  * ARGUMENTS:
  *   - primitive to create:
- *       vg4PRIM *Pr;
+ *       di6PRIM *Pr;
  *   - primitive type:
- *       vg4PRIM_TYPE Type;
+ *       di6PRIM_TYPE Type;
  *   - vertex array:
- *       vg4VERTEX *V;
+ *       di6VERTEX *V;
  *   - vertex array size:
  *       INT NoofV;
  *   - index array:
@@ -23,7 +23,7 @@
  * RETURNS:
  *   (BOOL) TRUE if success, FALSE otherwise.
  */
-BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI )
+BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI, INT NumInArray )
 {
   memset(Pr, 0, sizeof(di6PRIM));
 
@@ -56,6 +56,8 @@ BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV,
   else
     Pr->NumOfI = NoofV;
 
+  Pr->NumInArray = NumInArray;
+
   Pr->Type = Type;
 
   Pr->Trans = MatrIdentity();
@@ -66,7 +68,7 @@ BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV,
 /* Free primitive function.
  * ARGUMENTS:
  *   - primitive to free up:
- *       vg4PRIM *Pr;
+ *       di6PRIM *Pr;
  * RETURNS: None.
  */
 VOID DI6_RndPrimFree( di6PRIM *Pr )
@@ -86,7 +88,7 @@ VOID DI6_RndPrimFree( di6PRIM *Pr )
 /* Draw primitive function.
  * ARGUMENTS:
  *   - primitive to draw:
- *       vg4PRIM *Pr;
+ *       di6PRIM *Pr;
  *   - world transformation matrix:
  *       MATR World
  * RETURNS:
@@ -94,18 +96,29 @@ VOID DI6_RndPrimFree( di6PRIM *Pr )
  */
 VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
 {
-  INT gl_prim_type;
-  MATR M = MatrMulMatr(MatrMulMatr(Pr->Trans, World), DI6_RndMatrVP);
+  INT gl_prim_type, prg;
 
-  glLoadMatrixf(M.M[0]);
+  INT loc;
+
+  //glLoadMatrixf(WVP.M[0]);
+
+  prg = DI6_RndMtlApply(Pr->MtlNo);
+
+  glUseProgram(prg);
+
+  if ((loc = glGetUniformLocation(prg, "MatrVP")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, DI6_RndMatrVP.M[0]);
+  if ((loc = glGetUniformLocation(prg, "MatrWorld")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, World.M[0]);
+  if ((loc = glGetUniformLocation(prg, "Num")) != -1)
+    glUniform1i(loc, Pr->NumInArray);
+  if ((loc = glGetUniformLocation(prg, "GlobalTime")) != -1)
+    glUniform1f(loc, DI6_Anim.Timer.GlobalTime);
 
   glEnable(GL_PRIMITIVE_RESTART);
   glPrimitiveRestartIndex(-1);
 
   gl_prim_type = Pr->Type == DI6_RND_PRIM_TRIMESH ? GL_TRIANGLES : GL_TRIANGLE_STRIP;
-  /* gl_prim_type = GL_POINTS; */
-
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
   glBindVertexArray(Pr->VA);
   if (Pr->IBuf == 0)
@@ -123,7 +136,7 @@ VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
 /* Load primitive from "*.OBJ" file function.
  * ARGUMENTS:
  *   - primitive to be load to:
- *       vg4PRIM *Pr;
+ *       di6PRIM *Pr;
  *   - filename to load from:
  *       CHAR *FileName;
  * RETURNS:
@@ -190,7 +203,7 @@ BOOL DI6_RndPrimLoad( di6PRIM *Pr, CHAR *Filename)
   }
   fclose(F);
 
-  DI6_RndPrimCreate(Pr, DI6_RND_PRIM_TRIMESH, V, nv, I, nf);
+  DI6_RndPrimCreate(Pr, DI6_RND_PRIM_TRIMESH, V, nv, I, nf, 0);
   free(V);
   return TRUE;
 } /* End of 'DI6_RndPrimLoad' function */

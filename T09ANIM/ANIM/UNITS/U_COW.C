@@ -10,8 +10,9 @@ typedef struct
 {
   UNIT_BASE_FIELDS;
   VEC Pos;
-  di6PRIM Cow;
+  di6PRIMS Cow;
   FLT RandomDet;
+  BOOL IsLine;
 } di6UNIT_COW;
 
 /* Cow unit initialization function.
@@ -24,9 +25,10 @@ typedef struct
  */
 static VOID DI6_UnitInit( di6UNIT_COW *Uni, di6ANIM *Ani )
 {
-  DI6_RndPrimLoad(&Uni->Cow, "cow.obj");
-  Uni->Pos = VecSet(60 * DI6_Rand_1_1(), 0, 60 * DI6_Rand_1_1());
-  Uni->RandomDet = rand() % 2345;
+  DI6_RndPrimsLoad(&Uni->Cow, "bin/models/wa-heli.g3dm");
+  Uni->Pos = VecSetEqual(0);
+  Uni->RandomDet = rand() % 4579;
+  Uni->IsLine = FALSE;
 } /* End of 'DI6_UnitInit' function */
 
 /* Cow unit inter frame events handle function.
@@ -39,6 +41,14 @@ static VOID DI6_UnitInit( di6UNIT_COW *Uni, di6ANIM *Ani )
  */
 static VOID DI6_UnitResponse( di6UNIT_COW *Uni, di6ANIM *Ani )
 {
+  if ((Ani->Keyboard.KeysClick['L'] && (Ani->Keyboard.Keys[VK_SHIFT])))
+  {
+    if (Uni->IsLine == FALSE)
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    Uni->IsLine = !Uni->IsLine;
+  }
 } /* End of 'DI6_UnitResponse' function */
 
 /* Cow unit render function.
@@ -53,8 +63,7 @@ static VOID DI6_UnitRender( di6UNIT_COW *Uni, di6ANIM *Ani )
 {
   srand(Uni->RandomDet);
 
-  DI6_RndPrimDraw(&Uni->Cow, MatrMulMatr3(MatrScale(VecSet(0.4, 0.4, 0.4)), MatrTranslate(Uni->Pos),
-                             MatrTranslate(VecSet(0, 5 * fabs(sin(10 * DI6_Rand0_1() * Ani->Timer.Time)), 0))));
+  DI6_RndPrimsDraw(&Uni->Cow, MatrMulMatr4(MatrRotateX(0), MatrTranslate(Uni->Pos), MatrTranslate(VecSet(0, 0, 0)), MatrScale(VecSetEqual(1))));
 } /* End of 'DI6_UnitRender' function */
 
 /* Cow unit deinitialization function.
@@ -67,7 +76,7 @@ static VOID DI6_UnitRender( di6UNIT_COW *Uni, di6ANIM *Ani )
  */
 static VOID DI6_UnitClose( di6UNIT_COW *Uni, di6ANIM *Ani )
 {
-  DI6_RndPrimFree(&Uni->Cow);
+  DI6_RndPrimsFree(&Uni->Cow);
 } /* End of 'DI6_UnitClose' function */
 
 /* Unit cow creation function.
@@ -89,4 +98,4 @@ di6UNIT * DI6_UnitCreateCow( VOID )
   Uni->Close = (VOID *)DI6_UnitClose;
 
   return (di6UNIT *)Uni;
-} /* End of 'VG4_UnitCreateBall' function */
+} /* End of 'DI6_UnitCreateBall' function */

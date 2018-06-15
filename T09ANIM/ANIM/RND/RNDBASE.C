@@ -35,7 +35,10 @@ VOID DI6_RndInit( HWND hWnd )
   if (!(GLEW_ARB_vertex_shader && GLEW_ARB_fragment_shader))
     exit(0);
 
-  glClearColor(0, 0, 100, 1);
+  DI6_RndShdInit();
+  DI6_RndMtlInit();
+
+  glClearColor(255, 255, 255, 1);
 
   glEnable(GL_DEPTH_TEST);
 
@@ -44,6 +47,8 @@ VOID DI6_RndInit( HWND hWnd )
 
 VOID DI6_RndClose( VOID )
 {
+  DI6_RndShdClose();
+
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(DI6_Anim.hRC);
   ReleaseDC(DI6_Anim.hWnd, DI6_Anim.hDC);
@@ -62,6 +67,13 @@ VOID DI6_RndResize( INT w, INT h )
 
 VOID DI6_RndStart( VOID )
 {
+  static DBL ReloadTime = 0;
+
+  if (DI6_Anim.Timer.GlobalTime - ReloadTime > 3)
+  {
+    DI6_RndShdUpdate();
+    ReloadTime = DI6_Anim.Timer.GlobalTime;
+  }
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 } /* End of 'DI6_RndStart' function */
 

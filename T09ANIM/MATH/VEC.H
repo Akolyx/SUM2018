@@ -4,6 +4,9 @@
  * PURPOSE: Definitions of vectors and matrices.
  */
 
+#ifndef __VEC_H_
+#define __VEC_H_
+
 #include <math.h>
 
 #pragma warning(disable: 4244 4305 4028)
@@ -579,5 +582,7 @@ __inline MATR MatrFrustum( FLT l, FLT r, FLT b, FLT t, FLT n, FLT f )
 /***
 * End of matrix functions block
 ***/
+
+#endif /* __VEC_H_ */
 
 /* End of 'VEC.H' file */

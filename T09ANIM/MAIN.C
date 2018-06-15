@@ -16,8 +16,6 @@ INT DI6_MouseWheel;
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
 {
-  INT i;
-
   HWND hWnd;
   WNDCLASS wc;
   MSG msg;
@@ -58,8 +56,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   DI6_AnimUnitAdd(DI6_UnitCreateControl());
   //DI6_AnimUnitAdd(DI6_UnitCreateMeadow());
 
-  for (i = 0; i < 20; i++)
-    DI6_AnimUnitAdd(DI6_UnitCreateCow());
+  DI6_AnimUnitAdd(DI6_UnitCreateCow());
 
   /* Message cycle */
   while (TRUE)
@@ -112,19 +109,17 @@ LRESULT CALLBACK MyWindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam
     return 0;
   case WM_SIZE:              
     DI6_AnimResize(LOWORD(lParam), HIWORD(lParam));
+    DI6_AnimRender();
 
     return 0;
   case WM_TIMER:
-    DI6_AnimRender();                                            
+    DI6_AnimRender();   
 
-    SendMessage(hWnd, WM_PAINT, 0, 0);
-
-    InvalidateRect(hWnd, NULL, FALSE);
+    DI6_AnimCopyFrame();
 
     return 0;
   case WM_PAINT:
     hDC = BeginPaint(hWnd, &ps);
-    DI6_AnimCopyFrame();
     EndPaint(hWnd, &ps);
     return 0;
   case WM_MOUSEWHEEL:

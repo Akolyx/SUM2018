@@ -244,10 +244,30 @@
 						RelativePath=".\ANIM\RND\RNDCAM.C"
 						>
 					</File>
-					<File
-						RelativePath=".\ANIM\RND\RNDPRIM.C"
+					<Filter
+						Name="Resources"
 						>
-					</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDMTL.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDSHD.C"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Primitives"
+						>
+						<File
+							RelativePath=".\ANIM\RND\RNDPRIM.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RNDPRIMS.C"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="Unit samples"

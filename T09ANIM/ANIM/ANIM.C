@@ -76,7 +76,7 @@ di6UNIT * DI6_AnimUnitCreate( INT Size )
   Uni->Response = DI6_UnitResponse;
   Uni->Render = DI6_UnitRender;
   return Uni;
-} /* End of 'VG4_AnimUnitCreate' function */
+} /* End of 'DI6_AnimUnitCreate' function */
 
 /* Enabling switching between window and fullscreen modes */
 VOID DI6_AnimFlipFullScreen( VOID )

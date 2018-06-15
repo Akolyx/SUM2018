@@ -70,4 +70,4 @@ di6UNIT * DI6_UnitCreateMeadow( VOID )
   Uni->Close = (VOID *)DI6_UnitClose;
 
   return (di6UNIT *)Uni;
-} /* End of 'VG4_UnitCreateBall' function */
+} /* End of 'DI6_UnitCreateBall' function */
