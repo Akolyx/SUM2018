@@ -19,6 +19,14 @@
 
 typedef struct tagdi6UNIT di6UNIT;
 
+typedef struct taddi6CAMERA
+{
+  VEC Loc;
+  VEC Dir;
+  VEC Right;
+  VEC Up;
+} di6CAMERA;
+
 typedef struct tagdi6TIMER
 {
   FLT
@@ -62,9 +70,14 @@ typedef struct tagdi6ANIM
   HWND hWnd;
   HDC hDC;
   HGLRC hRC;
+
   INT w, h;
+
   di6UNIT *Units[DI6_MAX_UNITS]; 
   INT NumOfUnits;
+
+  di6CAMERA Camera;
+
   di6TIMER Timer;
   di6KEYBOARD Keyboard;
   di6MOUSE Mouse;

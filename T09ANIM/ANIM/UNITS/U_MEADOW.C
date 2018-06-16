@@ -28,7 +28,7 @@ static VOID DI6_UnitInit( di6UNIT_MEADOW *Uni, di6ANIM *Ani )
 /* Meadow unit inter frame events handle function.
  * ARGUMENTS:
  *   - self-pointer to unit object:
- *       di6UNIT_COW *Uni;
+ *       di6UNIT_HELICOPTER *Uni;
  *   - animation context:
  *       di6ANIM *Ani;
  * RETURNS: None.
@@ -41,7 +41,7 @@ static VOID DI6_UnitResponse( di6UNIT_MEADOW *Uni, di6ANIM *Ani )
 /* Meadow unit render function.
  * ARGUMENTS:
  *   - self-pointer to unit object:
- *       di6UNIT_COW *Uni;
+ *       di6UNIT_HELICOPTER *Uni;
  *   - animation context:
  *       di6ANIM *Ani;
  * RETURNS: None.

@@ -42,6 +42,9 @@ typedef struct tagdi6PRIM
 
   INT NumInArray;
 
+  VEC min;
+  VEC max;
+
   MATR Trans;
 } di6PRIM;
 
@@ -67,7 +70,7 @@ VOID DI6_RndProjSet( VOID );
 VOID DI6_RndCamSet( VEC loc, VEC at, VEC up1 );
 
 /* Primitives */
-BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI, INT NumInArray );
+BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI, INT NumInArray, VEC min, VEC max );
 VOID DI6_RndPrimFree( di6PRIM *Pr );
 VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World );
 BOOL DI6_RndPrimLoad( di6PRIM *Pr, CHAR *Filename);
@@ -150,9 +153,17 @@ VOID DI6_RndShdUpdate( VOID );
 typedef struct tagdi6MATERIAL
 {
   CHAR Name[DI6_STR_MAX]; /* Material name */
-  INT ShdNo;              /* Shader number in shader array */
 
-  /* to be continue */
+  /* Illumination coefficients */    
+  VEC Ka, Kd, Ks;         /* Ambient, diffuse, specular coefficients */
+  FLT Ph;                 /* Phong power coefficient */
+  FLT Trans;              /* Transparency factor */
+  INT Tex[8];             /* Texture references from texture table */
+
+  /* Shader string */
+  CHAR ShaderStr[DI6_STR_MAX];
+
+  INT ShdNo;              /* Shader number in shader array */
 } di6MATERIAL;
 
 /* Array of materials */

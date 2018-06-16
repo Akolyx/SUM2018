@@ -25,14 +25,14 @@ typedef struct
 /* Control unit initialization function.
  * ARGUMENTS:
  *   - self-pointer to unit object:
- *       di6UNIT_COW *Uni;
+ *       di6UNIT_HELICOPTER *Uni;
  *   - animation context:
  *       di6ANIM *Ani;
  * RETURNS: None.
  */
 static VOID DI6_UnitInit( di6UNIT_CTRL *Uni, di6ANIM *Ani )
 {
-  Uni->CamLoc = VecSet(0, 5, 5);
+  Uni->CamLoc = VecSet(5, 5, 5);
   Uni->CamAt = VecSetEqual(0);
   Uni->CamUp = VecSet(0, 1, 0);
   Uni->Speed = 20.0;
@@ -44,7 +44,7 @@ static VOID DI6_UnitInit( di6UNIT_CTRL *Uni, di6ANIM *Ani )
 /* Camera unit inter frame events handle function.
  * ARGUMENTS:
  *   - self-pointer to unit object:
- *       di6UNIT_COW *Uni;
+ *       di6UNIT_HELICOPTER *Uni;
  *   - animation context:
  *       di6ANIM *Ani;
  * RETURNS: None.
@@ -55,15 +55,15 @@ static VOID DI6_UnitResponse( di6UNIT_CTRL *Uni, di6ANIM *Ani )
 
   VEC dir, dir90;
 
-  if (Ani->Keyboard.KeysClick['F'])
+  if (((Ani->Keyboard.KeysClick['F']) && (Ani->Keyboard.Keys[VK_SHIFT])) || (Ani->Keyboard.KeysClick[VK_F11]))
     DI6_AnimFlipFullScreen();
   else if (Ani->Keyboard.KeysClick[VK_ESCAPE])
     DI6_AnimDoExit();
-  else if ((Ani->Keyboard.KeysClick['P'] && (Ani->Keyboard.Keys[VK_SHIFT])) || (Ani->Keyboard.KeysClick[VK_F11]))
+  else if ((Ani->Keyboard.KeysClick['P'] && (Ani->Keyboard.Keys[VK_SHIFT])))
     DI6_AnimTimePause();
 
   /* Calculating direction vector and rotated direction vector */
-  dir = VecSubVec(Uni->CamAt, Uni->CamLoc);
+  dir = DI6_Anim.Camera.Dir;
   dir90 = VectorTransform(dir, MatrRotateY(90));
 
   /* Motion forwards, backwards, rightwards and leftwards using WASD */

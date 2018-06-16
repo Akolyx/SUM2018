@@ -22,6 +22,11 @@ VOID DI6_RndMtlInit( VOID )
   di6MATERIAL defm =
   {
     "Default material",
+    {0.1, 0.2, 0.3}, {0.3, 0.3, 0.3}, {0.5, 0.5, 0.5},
+    13.7,
+    1,
+    {0},
+    "",
     0
   };
 
@@ -53,7 +58,7 @@ INT DI6_RndMtlAdd( di6MATERIAL *Mtl )
  */
 INT DI6_RndMtlApply( INT MtlNo )
 {
-  INT prg;
+  INT prg, loc;
   di6MATERIAL *mtl;
 
   /* Set material pointer */
@@ -69,6 +74,15 @@ INT DI6_RndMtlApply( INT MtlNo )
     prg = DI6_RndShaders[prg].ProgId;
 
   glUseProgram(prg);
+
+  if ((loc = glGetUniformLocation(prg, "Ka")) != -1)
+    glUniform3fv(loc, 1, &mtl->Ka.x);
+  if ((loc = glGetUniformLocation(prg, "Kd")) != -1)
+    glUniform3fv(loc, 1, &mtl->Kd.x);
+  if ((loc = glGetUniformLocation(prg, "Ks")) != -1)
+    glUniform3fv(loc, 1, &mtl->Ks.x);
+  if ((loc = glGetUniformLocation(prg, "Ph")) != -1)
+    glUniform1f(loc, mtl->Ph);
 
   return prg;
 } /* End of 'DI6_RndMtlApply' function */

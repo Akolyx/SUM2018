@@ -23,7 +23,7 @@
  * RETURNS:
  *   (BOOL) TRUE if success, FALSE otherwise.
  */
-BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI, INT NumInArray )
+BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI, INT NumInArray, VEC min, VEC max )
 {
   memset(Pr, 0, sizeof(di6PRIM));
 
@@ -57,6 +57,9 @@ BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV,
     Pr->NumOfI = NoofV;
 
   Pr->NumInArray = NumInArray;
+
+  Pr->min = min;
+  Pr->max = max;
 
   Pr->Type = Type;
 
@@ -96,9 +99,13 @@ VOID DI6_RndPrimFree( di6PRIM *Pr )
  */
 VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
 {
-  INT gl_prim_type, prg;
+  INT gl_prim_type, prg, loc;
 
-  INT loc;
+  MATR WVP;
+
+  World = MatrMulMatr(Pr->Trans, World);
+
+  WVP = MatrMulMatr(World, DI6_RndMatrVP);
 
   //glLoadMatrixf(WVP.M[0]);
 
@@ -106,12 +113,16 @@ VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
 
   glUseProgram(prg);
 
-  if ((loc = glGetUniformLocation(prg, "MatrVP")) != -1)
-    glUniformMatrix4fv(loc, 1, FALSE, DI6_RndMatrVP.M[0]);
-  if ((loc = glGetUniformLocation(prg, "MatrWorld")) != -1)
-    glUniformMatrix4fv(loc, 1, FALSE, World.M[0]);
-  if ((loc = glGetUniformLocation(prg, "Num")) != -1)
-    glUniform1i(loc, Pr->NumInArray);
+  if ((loc = glGetUniformLocation(prg, "MatrWVP")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, WVP.M[0]);
+  if ((loc = glGetUniformLocation(prg, "CamLoc")) != -1)
+    glUniform3fv(loc, 1, &DI6_Anim.Camera.Loc.x);
+  if ((loc = glGetUniformLocation(prg, "CamDir")) != -1)
+    glUniform3fv(loc, 1, &DI6_Anim.Camera.Dir.x);
+  if ((loc = glGetUniformLocation(prg, "CamRight")) != -1)
+    glUniform3fv(loc, 1, &DI6_Anim.Camera.Right.x);
+  if ((loc = glGetUniformLocation(prg, "CamUp")) != -1)
+    glUniform3fv(loc, 1, &DI6_Anim.Camera.Up.x);
   if ((loc = glGetUniformLocation(prg, "GlobalTime")) != -1)
     glUniform1f(loc, DI6_Anim.Timer.GlobalTime);
 
@@ -203,7 +214,7 @@ BOOL DI6_RndPrimLoad( di6PRIM *Pr, CHAR *Filename)
   }
   fclose(F);
 
-  DI6_RndPrimCreate(Pr, DI6_RND_PRIM_TRIMESH, V, nv, I, nf, 0);
+  DI6_RndPrimCreate(Pr, DI6_RND_PRIM_TRIMESH, V, nv, I, nf, -1, VecSetEqual(0), VecSetEqual(0));
   free(V);
   return TRUE;
 } /* End of 'DI6_RndPrimLoad' function */

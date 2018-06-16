@@ -56,7 +56,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   DI6_AnimUnitAdd(DI6_UnitCreateControl());
   //DI6_AnimUnitAdd(DI6_UnitCreateMeadow());
 
-  DI6_AnimUnitAdd(DI6_UnitCreateCow());
+  DI6_AnimUnitAdd(DI6_UnitCreateHelicopter());
 
   /* Message cycle */
   while (TRUE)
