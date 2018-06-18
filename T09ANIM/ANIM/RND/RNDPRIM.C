@@ -101,13 +101,15 @@ VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
 {
   INT gl_prim_type, prg, loc;
 
-  MATR WVP;
+  MATR WVP, N;
 
   World = MatrMulMatr(Pr->Trans, World);
 
+  N = MatrTranspose(MatrInverse(World));
+
   WVP = MatrMulMatr(World, DI6_RndMatrVP);
 
-  //glLoadMatrixf(WVP.M[0]);
+  glLoadMatrixf(WVP.M[0]);
 
   prg = DI6_RndMtlApply(Pr->MtlNo);
 
@@ -115,6 +117,8 @@ VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
 
   if ((loc = glGetUniformLocation(prg, "MatrWVP")) != -1)
     glUniformMatrix4fv(loc, 1, FALSE, WVP.M[0]);
+  if ((loc = glGetUniformLocation(prg, "MatrN")) != -1)
+    glUniformMatrix4fv(loc, 1, FALSE, N.M[0]);
   if ((loc = glGetUniformLocation(prg, "CamLoc")) != -1)
     glUniform3fv(loc, 1, &DI6_Anim.Camera.Loc.x);
   if ((loc = glGetUniformLocation(prg, "CamDir")) != -1)

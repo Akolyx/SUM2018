@@ -63,8 +63,29 @@ VOID DI6_RndPrimsDraw( di6PRIMS *Prs, MATR World )
 
   World = MatrMulMatr(World, Prs->Trans);
 
+  /* Draw non-transparent primitives */
   for (i = 0; i < Prs->NumOfPrims; i++)
-    DI6_RndPrimDraw(&Prs->Prims[i], World);
+  {
+    if (Prs->Prims[i].MtlNo > 0 && Prs->Prims[i].MtlNo < DI6_RndMaterialsSize && DI6_RndMaterials[Prs->Prims[i].MtlNo].Trans == 1)
+      DI6_RndPrimDraw(&Prs->Prims[i], World);
+  }
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_FRONT);
+  for (i = 0; i < Prs->NumOfPrims; i++)
+  {
+    if (Prs->Prims[i].MtlNo > 0 && Prs->Prims[i].MtlNo < DI6_RndMaterialsSize && DI6_RndMaterials[Prs->Prims[i].MtlNo].Trans < 1)
+      DI6_RndPrimDraw(&Prs->Prims[i], World);
+  }
+
+  glCullFace(GL_BACK);
+  for (i = 0; i < Prs->NumOfPrims; i++)
+  {
+    if (Prs->Prims[i].MtlNo > 0 && Prs->Prims[i].MtlNo < DI6_RndMaterialsSize && DI6_RndMaterials[Prs->Prims[i].MtlNo].Trans < 1)
+      DI6_RndPrimDraw(&Prs->Prims[i], World);
+  }
+
+  glDisable(GL_CULL_FACE);
 } /* End of 'DI6_RndPrimsDraw' function */  
 
 /* Load array of primitives from G3DM file function.
@@ -79,8 +100,9 @@ VOID DI6_RndPrimsDraw( di6PRIMS *Prs, MATR World )
 BOOL DI6_RndPrimsLoad( di6PRIMS *Prs, CHAR *FileName )
 {
   FILE *F;
-  INT flen, NoofP, NoofM, NoofT;
-  INT i, j, first_mtl_no;
+  INT flen, NoofP, NoofM, NoofT,
+      v, p, m, t,
+      first_mtl_no, first_tex_no;
 
   DBL minx = 1000, miny = 1000, minz = 1000;
   DBL maxx = -1000, maxy = -1000, maxz = -1000;
@@ -142,7 +164,7 @@ BOOL DI6_RndPrimsLoad( di6PRIMS *Prs, CHAR *FileName )
   }
 
   /* Read all primitives */
-  for (i = 0; i < NoofP; i++)
+  for (p = 0; p < NoofP; p++)
   {
     /* Read one primitive */
     INT NoofV, NoofI, MtlNo;
@@ -158,7 +180,7 @@ BOOL DI6_RndPrimsLoad( di6PRIMS *Prs, CHAR *FileName )
     MtlNo = *(INT *)ptr;
     ptr += 4;
 
-    for (j = 0; j < NoofV; j++)
+    for (v = 0; v < NoofV; v++)
     {
       V = (di6VERTEX *)ptr;
 
@@ -181,14 +203,16 @@ BOOL DI6_RndPrimsLoad( di6PRIMS *Prs, CHAR *FileName )
     ptr += sizeof(INT) * NoofI;
 
     /* Add a new primitive */
-    DI6_RndPrimCreate(&Prs->Prims[i], DI6_RND_PRIM_TRIMESH, V, NoofV, I, NoofI, i, VecSet(minx, miny, minz), VecSet(maxx, maxy, maxz));
+    DI6_RndPrimCreate(&Prs->Prims[p], DI6_RND_PRIM_TRIMESH, V, NoofV, I, NoofI, p, VecSet(minx, miny, minz), VecSet(maxx, maxy, maxz));
+    Prs->Prims[p].MtlNo = MtlNo;
   }
 
   /* Store first material number */
   first_mtl_no = DI6_RndMaterialsSize;
 
+
   /* Read all materials */
-  for (i = 0; i < NoofM; i++)
+  for (m = 0; m < NoofM; m++)
   {
     /* Read one material */
     DI6_RndMtlAdd((di6MATERIAL *)ptr);
@@ -196,8 +220,40 @@ BOOL DI6_RndPrimsLoad( di6PRIMS *Prs, CHAR *FileName )
   }
 
   /* Update material numbers in primitives */
-  for (i = 0; i < NoofP; i++)
-    Prs->Prims[i].MtlNo += first_mtl_no;
+  for (p = 0; p < NoofP; p++)
+    Prs->Prims[p].MtlNo += first_mtl_no;
+
+  /* Store first texture number */
+  first_tex_no = DI6_RndTexturesSize;
+
+  /* Read all textures */
+  for (t = 0; t < NoofT; t++)
+  {
+    /* Read one texture */
+    di6TEXTURE *tex = (di6TEXTURE *)ptr;
+
+    ptr += sizeof(di6TEXTURE);
+    DI6_RndTexAddImg(tex->Name, tex->W, tex->H, (DWORD *)ptr);
+    ptr += 4 * tex->W * tex->H;
+  }
+
+  /* Update texture numbers in materials */
+  for (m = 0; m < NoofM; m++)
+  {
+    INT i;
+    
+    if (first_mtl_no + m < DI6_MAX_MATERIALS)
+    {
+      di6MATERIAL *mtl = &DI6_RndMaterials[first_mtl_no + m];
+    
+      for (i = 0; i < 8; i++)
+        if (mtl->Tex[i] != -1)
+        {
+          mtl->Tex[i] += first_tex_no;
+          //mtl->Tex[i] = -1;
+        }
+    }
+  }
 
   free(mem);
   return TRUE;

@@ -19,13 +19,37 @@
 
 typedef struct tagdi6UNIT di6UNIT;
 
-typedef struct taddi6CAMERA
+/* Struct representing motion */
+typedef struct tagdi6MOV
+{
+  DBL
+    Speed,
+    Acceleration,
+  DBL
+    AcEx,
+    SpeedEx;
+  DBL
+    SpeedMax,
+    AcMax;
+
+} di6MOV;
+
+DBL DI6_Speed( di6MOV *m );
+
+typedef struct tagdi6CAMERA di6CAMERA;
+
+struct tagdi6CAMERA
 {
   VEC Loc;
+  VEC At;
   VEC Dir;
   VEC Right;
   VEC Up;
-} di6CAMERA;
+
+  di6MOV Move;
+
+  BOOL IsCameraFree;
+};
 
 typedef struct tagdi6TIMER
 {
@@ -76,7 +100,7 @@ typedef struct tagdi6ANIM
   di6UNIT *Units[DI6_MAX_UNITS]; 
   INT NumOfUnits;
 
-  di6CAMERA Camera;
+  di6CAMERA Camera, ObjCam;
 
   di6TIMER Timer;
   di6KEYBOARD Keyboard;

@@ -218,6 +218,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ANIM\MOV.C"
+					>
+				</File>
+				<File
 					RelativePath=".\ANIM\TIME.C"
 					>
 				</File>
@@ -248,11 +252,19 @@
 						Name="Resources"
 						>
 						<File
+							RelativePath=".\ANIM\RND\RES\RNDIMG.C"
+							>
+						</File>
+						<File
 							RelativePath=".\ANIM\RND\RES\RNDMTL.C"
 							>
 						</File>
 						<File
 							RelativePath=".\ANIM\RND\RES\RNDSHD.C"
+							>
+						</File>
+						<File
+							RelativePath=".\ANIM\RND\RES\RNDTEX.C"
 							>
 						</File>
 					</Filter>

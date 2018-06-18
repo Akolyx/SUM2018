@@ -25,7 +25,7 @@ VOID DI6_RndMtlInit( VOID )
     {0.1, 0.2, 0.3}, {0.3, 0.3, 0.3}, {0.5, 0.5, 0.5},
     13.7,
     1,
-    {0},
+    {-1, -1, -1, -1, -1, -1, -1, -1},
     "",
     0
   };
@@ -58,7 +58,7 @@ INT DI6_RndMtlAdd( di6MATERIAL *Mtl )
  */
 INT DI6_RndMtlApply( INT MtlNo )
 {
-  INT prg, loc;
+  INT prg, loc, i;
   di6MATERIAL *mtl;
 
   /* Set material pointer */
@@ -69,7 +69,7 @@ INT DI6_RndMtlApply( INT MtlNo )
   /* Set program Id */
   prg = mtl->ShdNo;
   if (prg < 0 || prg >= DI6_RndShadersSize)
-    prg = 0;
+    prg = DI6_RndShaders[0].ProgId;
   else
     prg = DI6_RndShaders[prg].ProgId;
 
@@ -83,6 +83,22 @@ INT DI6_RndMtlApply( INT MtlNo )
     glUniform3fv(loc, 1, &mtl->Ks.x);
   if ((loc = glGetUniformLocation(prg, "Ph")) != -1)
     glUniform1f(loc, mtl->Ph);
+  if ((loc = glGetUniformLocation(prg, "Trans")) != -1)
+    glUniform1f(loc, mtl->Trans);
+  
+  for (i = 0; i < 8; i++)
+  {
+    CHAR Buf[100] = "IsTexture0";
+
+    Buf[9] = '0' + i;
+    if ((loc = glGetUniformLocation(prg, Buf)) != -1)
+      glUniform1i(loc, mtl->Tex[i] != -1);
+    if (mtl->Tex[i] != -1)
+    {
+      glActiveTexture(GL_TEXTURE0 + i);
+      glBindTexture(GL_TEXTURE_2D, DI6_RndTextures[mtl->Tex[i]].TexId);
+    }
+  }
 
   return prg;
 } /* End of 'DI6_RndMtlApply' function */

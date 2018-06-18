@@ -29,6 +29,7 @@ VOID DI6_RndCamSet( VEC loc, VEC at, VEC up1 )
   DI6_RndMatrView = MatrView(loc, at, up1);
 
   DI6_Anim.Camera.Loc = loc;
+  DI6_Anim.Camera.At = at;
   DI6_Anim.Camera.Dir = VecSet(-DI6_RndMatrView.M[0][2], -DI6_RndMatrView.M[1][2], -DI6_RndMatrView.M[2][2]);
   DI6_Anim.Camera.Right = VecSet(-DI6_RndMatrView.M[0][0], -DI6_RndMatrView.M[1][0], -DI6_RndMatrView.M[2][0]);
   DI6_Anim.Camera.Up = VecSet(-DI6_RndMatrView.M[0][1], -DI6_RndMatrView.M[1][1], -DI6_RndMatrView.M[2][1]);

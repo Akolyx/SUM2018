@@ -148,7 +148,7 @@ VOID DI6_RndShdUpdate( VOID );
 ** Materials module
 ***/
 
-#define DI6_MAX_MATERIALS 30
+#define DI6_MAX_MATERIALS 300
 
 typedef struct tagdi6MATERIAL
 {
@@ -248,6 +248,109 @@ VOID DI6_RndPrimsDraw( di6PRIMS *Prs, MATR World );
  *   (BOOL) TRUE if success, FALSE otherwise.
  */
 BOOL DI6_RndPrimsLoad( di6PRIMS *Prs, CHAR *FileName );
+
+/***
+* Image handle
+***/
+
+/* Image representation type */
+typedef struct tagdi6IMAGE
+{
+  INT W, H;    /* Image size in pixels */
+  DWORD *Bits; /* Image pixels: pixel(X,Y) = Bits[Y * W + X] */
+
+  HBITMAP hBm; /* WinAPI bitmap handle */
+} di6IMAGE;
+
+/* Load image from BMP file function.
+ * ARGUMENTS:
+ *   - image structure to be load to:
+ *       di6IMAGE *Img;
+ *   - image file name:
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL DI6_RndImgLoad( di6IMAGE *Img, CHAR *FileName );
+
+/* Free image function.
+ * ARGUMENTS:
+ *   - image structure to be load to:
+ *       di6IMAGE *Img;
+ * RETURNS: None.
+ */
+VOID DI6_RndImgFree( di6IMAGE *Img );
+
+/* Upload image to OpenGL texture memory function.
+ * ARGUMENTS:
+ *   - image structure to be load to:
+ *       di6IMAGE *Img;
+ * RETURNS: None.
+ */
+VOID DI6_RndImgToTex( di6IMAGE *Img );
+
+/* Otain image pixel color function.
+ * ARGUMENTS:
+ *   - image structure to be load to:
+ *       di6IMAGE *Img;
+ *   - pixel coordinates:
+ *       INT X, Y;
+ * RETURNS: None.
+ */
+DWORD DI6_RndImgGet( di6IMAGE *Img, INT X, INT Y );
+
+/***
+ * Texture handle
+ ***/
+
+/* Texture representation type */
+typedef struct tagdi6TEXTURE
+{
+  CHAR Name[DI6_STR_MAX]; /* Texture name */
+  INT W, H;                          /* Texture size in pixels */
+  UINT TexId;                        /* OpenGL texture Id */ 
+} di6TEXTURE;
+
+/* Texture stock maximum size */
+#define DI6_MAX_TEXTURES 30
+/* Array of textures */
+extern di6TEXTURE DI6_RndTextures[DI6_MAX_TEXTURES];
+/* Shadres array store size */
+extern INT DI6_RndTexturesSize;
+
+/* Texture storage initialize function.
+ * ARGUMENTS: None.
+ * RETURNS: None.
+ */
+VOID DI6_RndTexInit( VOID );
+
+/* Texture storage deinitialize function.
+ * ARGUMENTS: None.
+ * RETURNS: None.
+ */
+VOID DI6_RndTexClose( VOID );
+
+/* Add texture from image to stock from file function.
+ * ARGUMENTS:
+ *   - image name:
+ *       CHAR *Name;
+ *   - image size:
+ *       INT W, H;
+ *   - image pixels data:
+ *       DWORD *Bits;
+ * RETURNS:
+ *   (INT) new texture stock number.
+ */
+INT DI6_RndTexAddImg( CHAR *Name, INT W, INT H, DWORD *Bits );
+
+/* Add texture to stock from file function.
+ * ARGUMENTS:
+ *   - texture file name:
+ *       CHAR *FileName;
+ * RETURNS:
+ *   (INT) new texture stock number (-1 if error occured).
+ */
+INT DI6_RndTexAdd( CHAR *FileName );
 
 #endif /* __RND_H_ */
 

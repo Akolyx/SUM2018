@@ -37,10 +37,13 @@ VOID DI6_RndInit( HWND hWnd )
 
   DI6_RndShdInit();
   DI6_RndMtlInit();
+  DI6_RndTexInit();
 
   glClearColor(255, 255, 255, 1);
 
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   DI6_RndProjSet();
 } /* End of 'DI6_RndInit' function */
@@ -48,6 +51,7 @@ VOID DI6_RndInit( HWND hWnd )
 VOID DI6_RndClose( VOID )
 {
   DI6_RndShdClose();
+  DI6_RndTexClose();
 
   wglMakeCurrent(NULL, NULL);
   wglDeleteContext(DI6_Anim.hRC);

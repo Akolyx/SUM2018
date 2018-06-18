@@ -2,9 +2,7 @@
  * PURPOSE     : WinAPI animation system.
  *               Rendering system implementation module.
  *               Images handle.
- * PROGRAMMER  : Vitaly A. Galinsky.
- * LAST UPDATE : 16.06.2018.
- * NOTE        : Module prefix 'VG4'.
+ * LAST UPDATE : 18.06.2018.
  */
 
 #include <string.h>
@@ -14,13 +12,13 @@
 /* Load image from BMP file function.
  * ARGUMENTS:
  *   - image structure to be load to:
- *       vg4IMAGE *Img;
+ *       di6IMAGE *Img;
  *   - image file name:
  *       CHAR *FileName;
  * RETURNS:
  *   (BOOL) TRUE if successful, FALSE otherwise.
  */
-BOOL VG4_RndImgLoad( vg4IMAGE *Img, CHAR *FileName )
+BOOL DI6_RndImgLoad( di6IMAGE *Img, CHAR *FileName )
 {
   INT i;
   HBITMAP hBmFile;
@@ -28,7 +26,7 @@ BOOL VG4_RndImgLoad( vg4IMAGE *Img, CHAR *FileName )
   BITMAPINFOHEADER bmih = {0};
   HDC hMemDC1, hMemDC2;
 
-  memset(Img, 0, sizeof(vg4IMAGE));
+  memset(Img, 0, sizeof(di6IMAGE));
 
   if ((hBmFile = LoadImage(NULL, FileName, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE)) == NULL)
     return FALSE;
@@ -45,9 +43,9 @@ BOOL VG4_RndImgLoad( vg4IMAGE *Img, CHAR *FileName )
 
   Img->hBm = CreateDIBSection(NULL, (BITMAPINFO *)&bmih, DIB_RGB_COLORS, &Img->Bits, NULL, 0);
 
-  hMemDC1 = CreateCompatibleDC(VG4_Anim.hDC);
+  hMemDC1 = CreateCompatibleDC(DI6_Anim.hDC);
   SelectObject(hMemDC1, hBmFile);
-  hMemDC2 = CreateCompatibleDC(VG4_Anim.hDC);
+  hMemDC2 = CreateCompatibleDC(DI6_Anim.hDC);
   SelectObject(hMemDC2, Img->hBm);
   BitBlt(hMemDC2, 0, 0, Img->W, Img->H, hMemDC1, 0, 0, SRCCOPY);
 
@@ -60,27 +58,27 @@ BOOL VG4_RndImgLoad( vg4IMAGE *Img, CHAR *FileName )
     Img->Bits[i] |= 0xFF000000;
 
   return TRUE;
-} /* End of 'VG4_RndImgLoad' function */
+} /* End of 'DI6_RndImgLoad' function */
 
 /* Free image function.
  * ARGUMENTS:
  *   - image structure to be load to:
- *       vg4IMAGE *Img;
+ *       di6IMAGE *Img;
  * RETURNS: None.
  */
-VOID VG4_RndImgFree( vg4IMAGE *Img )
+VOID DI6_RndImgFree( di6IMAGE *Img )
 {
   DeleteObject(Img->hBm);
-  memset(Img, 0, sizeof(vg4IMAGE));
-} /* End of 'VG4_RndImgFree' function */
+  memset(Img, 0, sizeof(di6IMAGE));
+} /* End of 'DI6_RndImgFree' function */
 
 /* Upload image to OpenGL texture memory function.
  * ARGUMENTS:
  *   - image structure to be load to:
- *       vg4IMAGE *Img;
+ *       di6IMAGE *Img;
  * RETURNS: None.
  */
-VOID VG4_RndImgToTex( vg4IMAGE *Img )
+VOID DI6_RndImgToTex( di6IMAGE *Img )
 {
   gluBuild2DMipmaps(GL_TEXTURE_2D, 4, Img->W, Img->H,
     GL_BGRA_EXT, GL_UNSIGNED_BYTE, Img->Bits);
@@ -88,21 +86,21 @@ VOID VG4_RndImgToTex( vg4IMAGE *Img )
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-} /* End of 'VG4_RndImgToTex' function */
+} /* End of 'DI6_RndImgToTex' function */
 
 /* Otain image pixel color function.
  * ARGUMENTS:
  *   - image structure to be load to:
- *       vg4IMAGE *Img;
+ *       di6IMAGE *Img;
  *   - pixel coordinates:
  *       INT X, Y;
  * RETURNS: None.
  */
-DWORD VG4_RndImgGet( vg4IMAGE *Img, INT X, INT Y )
+DWORD DI6_RndImgGet( di6IMAGE *Img, INT X, INT Y )
 {
   X = (X + Img->W) % Img->W;
   Y = (Y + Img->H) % Img->H;
   return Img->Bits[Y * Img->W + X];
-} /* End of 'VG4_RndImgGet' function */
+} /* End of 'DI6_RndImgGet' function */
 
 /* END OF 'RNDIMG.C' FILE */
