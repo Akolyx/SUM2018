@@ -57,7 +57,8 @@ VOID DI6_AnimUnitAdd( di6UNIT *Uni )
 {
   if (DI6_Anim.NumOfUnits < DI6_MAX_UNITS)
   {  
-    DI6_Anim.Units[DI6_Anim.NumOfUnits++] = Uni;
+    DI6_Anim.Units[DI6_Anim.NumOfUnits] = Uni;
+    Uni->i = DI6_Anim.NumOfUnits++;
     Uni->Init(Uni, &DI6_Anim);
   }
 }
@@ -119,5 +120,12 @@ VOID DI6_AnimFlipFullScreen( VOID )
 
 VOID DI6_AnimDoExit ( VOID )
 {
+  static BOOL IsExit = FALSE;
+
+  if (IsExit)
+    return;
+
+  IsExit = TRUE;
   SendMessage(DI6_Anim.hWnd, WM_CLOSE, 0, 0);
+  IsExit = FALSE;
 }

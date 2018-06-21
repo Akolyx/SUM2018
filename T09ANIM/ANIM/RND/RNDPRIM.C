@@ -127,6 +127,8 @@ VOID DI6_RndPrimDraw( di6PRIM *Pr, MATR World )
     glUniform3fv(loc, 1, &DI6_Anim.Camera.Right.x);
   if ((loc = glGetUniformLocation(prg, "CamUp")) != -1)
     glUniform3fv(loc, 1, &DI6_Anim.Camera.Up.x);
+  if ((loc = glGetUniformLocation(prg, "LightPos")) != -1)
+    glUniform3fv(loc, 1, &DI6_Anim.LightPos.x);
   if ((loc = glGetUniformLocation(prg, "GlobalTime")) != -1)
     glUniform1f(loc, DI6_Anim.Timer.GlobalTime);
 

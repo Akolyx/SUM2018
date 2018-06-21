@@ -6,7 +6,7 @@
 
 #include "../anim.h"
 
-FLT DI6_RndProjSize = 1, DI6_RndProjDist = 1, DI6_RndProjFarClip = 300;
+FLT DI6_RndProjSize = 1, DI6_RndProjDist = 1, DI6_RndProjFarClip = 3000;
 
 MATR DI6_RndMatrView, DI6_RndMatrProj, DI6_RndMatrVP;
 
@@ -36,3 +36,28 @@ VOID DI6_RndCamSet( VEC loc, VEC at, VEC up1 )
 
   DI6_RndMatrVP = MatrMulMatr(DI6_RndMatrView, DI6_RndMatrProj);
 } /* End of 'DI6_RndCamset' function */
+
+/* Set active unit that camera follows function 
+*  ARGUMENTS:
+*    - number of unit
+*        INT i;
+*  RETURNS: None.
+*/
+VOID DI6_RndActiveCam( INT i )
+{
+  DI6_RndCamSet(DI6_Anim.Units[i]->Camera.Loc, DI6_Anim.Units[i]->Camera.At, DI6_Anim.Units[i]->Camera.Up);
+}
+
+/* Moving vectors Loc and At on vector function 
+*  ARGUMENTS:
+*    - pointer to vectors:
+*        VEC *Loc, *At;
+*    - vector:
+*        VEC v;
+*  RETURNS: None.
+*/
+VOID DI6_RndCamMove( VEC *Loc, VEC *At, VEC v)
+{
+  *Loc = VecAddVec(*Loc, v);
+  *At = VecAddVec(*At, v);
+}

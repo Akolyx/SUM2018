@@ -32,13 +32,13 @@ typedef struct tagVEC
 /* Structure representing a plane vector */
 typedef struct tagVEC2
 {
-  FLT X, Y; /* Vector components */
+  FLT x, y; /* Vector components */
 } VEC2;
 
 /* Structure representing a 4-components vector */
 typedef struct tagVEC4
 {
-  FLT X, Y, Z, W; /* Vector components */
+  FLT x, y, z, w; /* Vector components */
 } VEC4;
 
 /* Structure representing a matrix 4x4 */
@@ -63,6 +63,32 @@ __inline VEC VecSet( FLT x, FLT y, FLT z )
   VEC v = {x, y, z};
   return v;
 } /* End of 'VecSet' function */
+
+/* Constructing a two-dimensional vector with given coordinates
+ * ARGUMENTS:
+ *   - coordinates:
+ *       FLT x, y;
+ * RETURNS:
+ *   (Vec) - vector with given coordinates;
+ */
+__inline VEC2 Vec2Set( FLT x, FLT y )
+{
+  VEC2 v = {x, y};
+  return v;
+} /* End of 'Vec2Set' function */
+
+/* Constructing a four-dimensional vector with given coordinates
+ * ARGUMENTS:
+ *   - coordinates:
+ *       FLT x, y, z, w;
+ * RETURNS:
+ *   (Vec) - vector with given coordinates;
+ */
+__inline VEC4 Vec4Set( FLT x, FLT y, FLT z, FLT w )
+{
+  VEC4 v = {x, y, z, w};
+  return v;
+} /* End of 'Vec4Set' function */
 
 /* Constructing a vector with three coordinates equal to given number
  * ARGUMENTS:

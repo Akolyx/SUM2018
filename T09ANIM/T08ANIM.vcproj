@@ -272,6 +272,10 @@
 						Name="Primitives"
 						>
 						<File
+							RelativePath=".\ANIM\RND\RNDGRID.C"
+							>
+						</File>
+						<File
 							RelativePath=".\ANIM\RND\RNDPRIM.C"
 							>
 						</File>
@@ -281,22 +285,34 @@
 						</File>
 					</Filter>
 				</Filter>
-				<Filter
-					Name="Unit samples"
+			</Filter>
+			<Filter
+				Name="Unit samples"
+				>
+				<File
+					RelativePath=".\ANIM\UNITS\CONTROL.C"
 					>
-					<File
-						RelativePath=".\ANIM\UNITS\CONTROL.C"
-						>
-					</File>
-					<File
-						RelativePath=".\ANIM\UNITS\U_HELICOPTER.C"
-						>
-					</File>
-					<File
-						RelativePath=".\ANIM\UNITS\U_MEADOW.C"
-						>
-					</File>
-				</Filter>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNITS\U_GROUND.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNITS\U_HELICOPTER.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNITS\U_SKY.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNITS\U_WALRUS.C"
+					>
+				</File>
+				<File
+					RelativePath=".\ANIM\UNITS\U_WATER.C"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

@@ -13,6 +13,7 @@
 VOID DI6_RndInit( HWND hWnd )
 {
   INT i;
+  HFONT hFnt, hOldFnt;
 
   PIXELFORMATDESCRIPTOR pfd = {0};
 
@@ -46,6 +47,16 @@ VOID DI6_RndInit( HWND hWnd )
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   DI6_RndProjSet();
+
+  /*** Generate font ***/
+  hFnt = CreateFont(30, 0, 0, 0, FW_BOLD, TRUE, FALSE, FALSE, RUSSIAN_CHARSET,
+    OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, PROOF_QUALITY,
+    VARIABLE_PITCH | FF_SCRIPT, "Bookman Old Style");
+  hOldFnt = SelectObject(DI6_Anim.hDC, hFnt);
+  wglUseFontBitmaps(DI6_Anim.hDC, 0, 256, 102);
+  hOldFnt = SelectObject(DI6_Anim.hDC, hOldFnt);
+  DeleteObject(hFnt);
+
 } /* End of 'DI6_RndInit' function */
 
 VOID DI6_RndClose( VOID )

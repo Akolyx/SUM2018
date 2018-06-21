@@ -16,6 +16,7 @@ INT DI6_MouseWheel;
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
 {
+  INT i;
   HWND hWnd;
   WNDCLASS wc;
   MSG msg;
@@ -53,8 +54,14 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   SetDbgMemHooks();
 
   /* Adding units */
+  DI6_AnimUnitAdd(DI6_UnitCreateGround());
+  DI6_AnimUnitAdd(DI6_UnitCreateSky());
+  DI6_AnimUnitAdd(DI6_UnitCreateWater());
+
   DI6_AnimUnitAdd(DI6_UnitCreateControl());
-  //DI6_AnimUnitAdd(DI6_UnitCreateMeadow());
+
+  for (i = 0; i < 1; i++)
+    DI6_AnimUnitAdd(DI6_UnitCreateWalrus());
 
   DI6_AnimUnitAdd(DI6_UnitCreateHelicopter());
 

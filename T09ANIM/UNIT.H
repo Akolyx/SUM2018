@@ -7,5 +7,8 @@
 #include "anim\anim.h"
 
 di6UNIT * DI6_UnitCreateHelicopter( VOID );
-di6UNIT * DI6_UnitCreateMeadow( VOID );
+di6UNIT * DI6_UnitCreateWalrus( VOID );
+di6UNIT * DI6_UnitCreateGround( VOID );
+di6UNIT * DI6_UnitCreateSky( VOID );
+di6UNIT * DI6_UnitCreateWater( VOID );
 di6UNIT * DI6_UnitCreateControl( VOID );

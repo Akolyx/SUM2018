@@ -7,24 +7,28 @@
 
 #include "anim.h"
 
-DBL DI6_Speed( di6MOV *m )
+DBL DI6_Shift( di6MOV *m , DBL DeltaTime, INT IsAff, BOOL IsCameraFree )
 {
-  CHAR Buf[100];
-
-  m->Acceleration = min(m->Acceleration + m->Jerk * DI6_Anim.Timer.GlobalDeltaTime, m->AcMax);
-  if (m->Speed + m->Acceleration * DI6_Anim.Timer.GlobalDeltaTime, m->SpeedMax > 0)
-    m->Speed = m->Speed + m->Acceleration * DI6_Anim.Timer.GlobalDeltaTime, m->SpeedMax;
-  else
+  if (DeltaTime == 0)
+    return 0;
+  else if (IsCameraFree)
   {
-    m->Speed = m->Acceleration = m->AcEx = 0;
+    IsAff = 0;
   }
 
-  /*sprintf(Buf, " Speed = %.3f", m->Speed);
-  SetWindowText(DI6_Anim.hWnd, Buf);
+  if (IsAff == 0)
+  {
+    m->Acceleration *= 0.9;
+    m->Speed *= 0.9999;
+  }
+  else
+  {
+    m->Acceleration = m->Acceleration + m->AcEx * IsAff * DeltaTime;
 
-  memset(Buf, 0, sizeof(Buf));*/
+    m->Speed = max(min(m->Speed + m->Acceleration * DeltaTime, m->SpeedMax), m->SpeedMin);
+  }
 
-  return m->Speed;
+  return m->Speed * DeltaTime;
 }
 
 /* End of 'MOV.C' file */

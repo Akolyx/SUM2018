@@ -15,7 +15,9 @@
   VOID (*Init)( di6UNIT *Uni, di6ANIM *Ani );      \
   VOID (*Close)( di6UNIT *Uni, di6ANIM *Ani );     \
   VOID (*Response)( di6UNIT *Uni, di6ANIM *Ani );  \
-  VOID (*Render)( di6UNIT *Uni, di6ANIM *Ani )
+  VOID (*Render)( di6UNIT *Uni, di6ANIM *Ani );    \
+  di6CAMERA Camera;                                 \
+  INT i
 
 typedef struct tagdi6UNIT di6UNIT;
 
@@ -24,17 +26,18 @@ typedef struct tagdi6MOV
 {
   DBL
     Speed,
-    Acceleration,
+    Acceleration;
   DBL
-    AcEx,
-    SpeedEx;
+    AcEx;
   DBL
     SpeedMax,
     AcMax;
+  DBL
+    SpeedMin;
 
 } di6MOV;
 
-DBL DI6_Speed( di6MOV *m );
+DBL DI6_Shift( di6MOV *m , DBL DeltaTime, INT IsAff, BOOL IsCameraFree );
 
 typedef struct tagdi6CAMERA di6CAMERA;
 
@@ -47,8 +50,6 @@ struct tagdi6CAMERA
   VEC Up;
 
   di6MOV Move;
-
-  BOOL IsCameraFree;
 };
 
 typedef struct tagdi6TIMER
@@ -100,7 +101,10 @@ typedef struct tagdi6ANIM
   di6UNIT *Units[DI6_MAX_UNITS]; 
   INT NumOfUnits;
 
-  di6CAMERA Camera, ObjCam;
+  di6CAMERA Camera;
+  BOOL IsCameraFree;
+
+  VEC LightPos;
 
   di6TIMER Timer;
   di6KEYBOARD Keyboard;

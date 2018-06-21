@@ -69,6 +69,24 @@ extern MATR DI6_RndMatrView,
 VOID DI6_RndProjSet( VOID );
 VOID DI6_RndCamSet( VEC loc, VEC at, VEC up1 );
 
+/* Set active unit that camera follows function 
+*  ARGUMENTS:
+*    - number of unit:
+*        INT i;
+*  RETURNS: None.
+*/
+VOID DI6_RndActiveCam( INT i );
+
+/* Moving vectors Loc and At on vector function 
+*  ARGUMENTS:
+*    - pointer to vectors:
+*        VEC *Loc, *At;
+*    - vector:
+*        VEC v;
+*  RETURNS: None.
+*/
+VOID DI6_RndCamMove( VEC *Loc, VEC *At, VEC v);
+
 /* Primitives */
 BOOL DI6_RndPrimCreate( di6PRIM *Pr, di6PRIM_TYPE Type, di6VERTEX *V, INT NoofV, INT *I, INT NoofI, INT NumInArray, VEC min, VEC max );
 VOID DI6_RndPrimFree( di6PRIM *Pr );
@@ -351,6 +369,101 @@ INT DI6_RndTexAddImg( CHAR *Name, INT W, INT H, DWORD *Bits );
  *   (INT) new texture stock number (-1 if error occured).
  */
 INT DI6_RndTexAdd( CHAR *FileName );
+
+/***
+ * Grid handle
+ ***/
+
+/* Grid topology representation type */
+typedef struct tagdi6GRID
+{
+  INT W, H;     /* Grid size in vertex */
+  di6VERTEX *V; /* Grid vertex array */
+} di6GRID;
+
+/* Convert grid to primitive function.
+ * ARGUMENTS:
+ *   - primitive to be constructed:
+ *       di6PRIM *Pr;
+ *   - source grid:
+ *       di6GRID *G;
+ * RETURNS: None.
+ */
+VOID DI6_RndPrimFromGrid( di6PRIM *Pr, di6GRID *G );
+
+/* Grid creation function.
+ * ARGUMENTS:
+ *   - grid to be create:
+ *       di6GRID *G;
+ *   - grid size:
+ *       INT W, H;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL DI6_RndGridCreate( di6GRID *G, INT W, INT H );
+
+/* Grid free function.
+ * ARGUMENTS:
+ *   - grid to free:
+ *       di6GRID *G;
+ * RETURNS: None.
+ */
+VOID DI6_RndGridFree( di6GRID *G );
+
+/* Grid normal evaluation function.
+ * ARGUMENTS:
+ *   - grid for recalculate normals:
+ *       di6GRID *G;
+ * RETURNS: None.
+ */
+VOID DI6_RndPrimGridEvalNormals( di6GRID *G );
+
+/* Sphere grid creation function.
+ * ARGUMENTS:
+ *   - grid to create:
+ *       di6GRID *G;
+ *   - grid size:
+ *       INT W, H;
+ *   - sphere center:
+ *       VEC C;
+ *   - sphere radius:
+ *       FLT R;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL DI6_RndGridCreateSphere( di6GRID *G, INT W, INT H, VEC C, FLT R );
+
+/* Plane grid creation function.
+ * ARGUMENTS:
+ *   - grid to create:
+ *       di6GRID *G;
+ *   - grid size:
+ *       INT W, H;
+ *   - plane corner and directional vectors:
+ *       VEC P, Du, Dv;
+ *   - plane texture scale factors:
+ *       FLT Tx, Ty;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL DI6_RndGridCreatePlane( di6GRID *G, INT W, INT H,
+       VEC P, VEC Du, VEC Dv, FLT Tx, FLT Ty );
+
+/* Height field grid creation function.
+ * ARGUMENTS:
+ *   - grid to create:
+ *       di6GRID *G;
+ *   - height field image file name:
+ *       CHAR *HeightFieldFileName;
+ *   - plane corner and directional vectors:
+ *       VEC P, Du, Dv;
+ *   - height scale factor:
+ *       FLT Scale;
+ * RETURNS:
+ *   (BOOL) TRUE if successful, FALSE otherwise.
+ */
+BOOL DI6_RndGridCreateHeightField( di6GRID *G, CHAR *HeightFieldFileName,
+                                   VEC P, VEC Du, VEC Dv, FLT Scale );
 
 #endif /* __RND_H_ */
 
