@@ -151,36 +151,8 @@ void DrawSphere( HDC hDC, INT x, INT y, INT r)
       pnts[2] = pts[i + 1][(j + 1) % (2 * p)];
       pnts[3] = pts[i + 1][j];
 
-      for (k = 0; k < 4; k++)
-        sq += (pnts[k].x - pnts[(k + 1) % 4].x) * (pnts[k].y + pnts[(k + 1) % 4].y);
-
-      if (sq < 0)
-      {
-        SetDCPenColor(hDC, RGB(200, 200, 200));
-        Polygon(hDC, pnts, 4);
-      }
-    }
-  }
-
-  for (i = 0; i < p; i++)
-  {
-    POINT pnts[4];
-
-    for (j = 0; j < 2 * p; j++)
-    {
-      pnts[0] = pts[i][j];
-      pnts[1] = pts[i][(j + 1) % (2 * p)];
-      pnts[2] = pts[i + 1][(j + 1) % (2 * p)];
-      pnts[3] = pts[i + 1][j];
-
-      for (k = 0; k < 4; k++)
-        sq += (pnts[k].x - pnts[(k + 1) % 4].x) * (pnts[k].y + pnts[(k + 1) % 4].y);
-
-      if (sq > 0)
-      {
-        SetDCPenColor(hDC, RGB(0, 0, 0));
-        Polygon(hDC, pnts, 4);
-      }
+      SetDCPenColor(hDC, RGB(0, 0, 0));
+      Polygon(hDC, pnts, 4);
     }
   }
 } /* End of 'DrawSphere' function */
